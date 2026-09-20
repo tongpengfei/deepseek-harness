@@ -217,6 +217,8 @@
       "@deepseek-ai/dsh-client-ui-cordis/client": ["./packages/extensions/ui-cordis/src/client"],
       "@deepseek-ai/dsh-client-test-runtime": ["./packages/test-support/client-runtime/src"],
       "@deepseek-ai/dsh-client-ui-layout": ["./packages/client/ui-layout/src"],
+      "@deepseek-ai/dsh-client-ui-apps": ["./packages/client/ui-apps/src"],
+      "@deepseek-ai/dsh-client-ui-apps/client": ["./packages/client/ui-apps/src/client"],
       "@deepseek-ai/dsh-client-ui-sidebar": ["./packages/client/ui-sidebar/src"],
       "@deepseek-ai/dsh-client-ui-brand-official": ["./packages/client/ui-brand-official/src"],
       "@deepseek-ai/dsh-client-ui-approval": ["./packages/client/ui-approval/src"],

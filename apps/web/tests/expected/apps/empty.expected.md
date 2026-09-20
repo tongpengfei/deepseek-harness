@@ -1,0 +1,5 @@
+- heading "应用" [level=1]
+- paragraph: 使用针对具体场景设计的 AI 工具
+- img
+- heading "还没有应用" [level=2]
+- paragraph: 启用提供应用的插件后，它们会显示在这里。

@@ -43,6 +43,7 @@ The kernel packages boot and serve the page; the UI feature packages present it.
 | [`ui-layout/`](ui-layout/README.md) | Arranges the main application regions | — |
 | [`ui-dockkit/`](ui-dockkit/README.md) | Provides docking layout operations and React components | — |
 | [`ui-sidebar/`](ui-sidebar/README.md) | Presents workspace and session navigation | — |
+| [`ui-apps/`](ui-apps/README.md) | Hosts scenario Apps in one sidebar catalog | — |
 | [`ui-sidebar-right/`](ui-sidebar-right/README.md) | Owns the right Sidebar and its tab types | `ctx.sidebarRight`, `ctx.sidebarRightTabs` |
 | [`ui-sidebar-documentpreview/`](ui-sidebar-documentpreview/README.md) | Displays documents in right Sidebar tabs | `ctx.documentPreviews` |
 | [`ui-sidebar-browser/`](ui-sidebar-browser/README.md) | Browses sandboxed HTTP(S) pages, including loopback services, in right-Sidebar tabs | — |
