@@ -1,0 +1,8 @@
+version: 1
+scenario: code-learning-tutor
+profile: web
+composition: web-learning
+recording: authored
+header:
+  class: web-learning
+  pin: true
