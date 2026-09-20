@@ -45,7 +45,7 @@ describe('code-learning Tutor Session', () => {
     if (failures.length > 1) throw new AggregateError(failures, 'code-learning Tutor teardown failed')
   })
 
-  it('replays one focused concept before offering practice', () => {
+  it('replays a focused, natural lesson opening before offering practice', () => {
     const entries = agentHandle.agent.session.snapshotEvents().map(event => ({ type: 'event' as const, event }))
     const messages = projectTutorMessages(entries)
     expect(messages.map(message => message.role)).toEqual(['tutor'])
@@ -55,6 +55,8 @@ describe('code-learning Tutor Session', () => {
     expect(answer).not.toContain('stdio.h')
     expect(answer).not.toContain('printf')
     expect(answer).not.toContain('Complete a program')
+    expect(answer).not.toContain('一个新知识点')
+    expect(answer).not.toContain('这节课只')
     expect(agentHandle.agent.session.requestHeader()?.tools).toBeUndefined()
   })
 

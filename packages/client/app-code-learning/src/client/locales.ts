@@ -3,11 +3,11 @@
 /** Simplified Chinese dictionary and locale-key source of truth. */
 export const zh = {
   'app.name': 'C 语言学习',
-  'app.summary': '让 AI 导师一次讲透一个知识点，再通过练习逐步掌握 C。',
+  'app.summary': '跟着 AI 导师边学边练，循序渐进掌握 C。',
   'app.lessonCount': '22 节微课程',
   'course.badge': 'C',
   'course.title': 'C 语言基础',
-  'course.description': '每课只学习一个新知识点，从程序入口逐步走到指针读写。',
+  'course.description': '从程序入口开始，循序渐进学会 C 的核心语法和用法。',
   'course.progress': '已掌握 {completed}/{total}',
   'course.newSession': '开始新的学习对话',
   'course.lessonList': '课程目录',
@@ -18,7 +18,7 @@ export const zh = {
   'lesson.completeAndNext': '学会了，进入下一课',
   'lesson.courseComplete': '完成整门课程',
   'tutor.startTitle': '和 AI 导师一起开始',
-  'tutor.startDescription': '导师每次只讲一个新知识点：先讲清概念、语法和最小例子，确认理解后再给小练习和总结。',
+  'tutor.startDescription': '导师会先讲清本课内容、语法和最小例子，确认理解后再给小练习和总结。',
   'tutor.start': '开始第一课',
   'tutor.restoring': '正在恢复学习对话…',
   'tutor.empty': '学习对话还没有开始。',
@@ -40,7 +40,7 @@ export const zh = {
   'markdown.footnotes': '脚注',
 
   'lesson.entry.title': '程序从 main 开始',
-  'lesson.entry.objective': '只认识 C 程序的入口 main。',
+  'lesson.entry.objective': '认识 C 程序的入口 main。',
   'lesson.entry.explanation': 'C 程序运行时先进入 main。现阶段把 int、void 和 return 0 当作程序外壳，不展开它们的含义。',
   'lesson.entry.practice': '补全一个只有 main 外壳的程序。',
   'lesson.header.title': '引入 stdio.h',
@@ -135,11 +135,11 @@ export type CourseLocaleKey = keyof typeof zh
 /** English dictionary checked against the Chinese key set. */
 export const en = {
   'app.name': 'Learn C',
-  'app.summary': 'Master C one concept at a time with an AI Tutor and focused practice.',
+  'app.summary': 'Learn and practice with an AI Tutor as you build a solid foundation in C.',
   'app.lessonCount': '22 micro-lessons',
   'course.badge': 'C',
   'course.title': 'C Foundations',
-  'course.description': 'Learn one new concept per lesson, from the program entry point to reading and writing through pointers.',
+  'course.description': 'Build your C syntax and usage step by step, from the program entry point to working with pointers.',
   'course.progress': '{completed}/{total} mastered',
   'course.newSession': 'Start a new learning conversation',
   'course.lessonList': 'Course outline',
@@ -150,7 +150,7 @@ export const en = {
   'lesson.completeAndNext': 'Got it, start the next lesson',
   'lesson.courseComplete': 'Complete the course',
   'tutor.startTitle': 'Start with your AI Tutor',
-  'tutor.startDescription': 'Your Tutor teaches one new concept at a time: first the idea, syntax, and a minimal example, then a small exercise and recap after you understand it.',
+  'tutor.startDescription': 'Your Tutor first explains the lesson, its syntax, and a minimal example, then gives you a small exercise and recap when you are ready.',
   'tutor.start': 'Start lesson one',
   'tutor.restoring': 'Restoring your learning conversation…',
   'tutor.empty': 'The learning conversation has not started yet.',
@@ -172,7 +172,7 @@ export const en = {
   'markdown.footnotes': 'Footnotes',
 
   'lesson.entry.title': 'Programs begin at main',
-  'lesson.entry.objective': 'Recognize only the main entry point of a C program.',
+  'lesson.entry.objective': 'Recognize main as the entry point of a C program.',
   'lesson.entry.explanation': 'A C program enters main when it starts. For now, treat int, void, and return 0 as fixed parts of the program shell without expanding their meanings.',
   'lesson.entry.practice': 'Complete a program that contains only the main shell.',
   'lesson.header.title': 'Include stdio.h',

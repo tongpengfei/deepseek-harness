@@ -15,8 +15,10 @@ describe('Tutor Session adapter', () => {
     expect(initial).toContain('Programs begin at main')
     expect(initial).toContain('```c\nint main(void)')
     expect(initial).toContain('Never claim that code was compiled or executed')
-    expect(initial).toContain('The only new concept in this lesson')
+    expect(initial).toContain('Lesson goal')
     expect(initial).toContain('Never introduce a concept from a later lesson')
+    expect(initial).toContain('Keep the lesson structure invisible')
+    expect(initial).toContain('Never tell the learner how many concepts the lesson covers')
     expect(initial).toContain('only after the learner says they are ready')
     expect(initial).toContain('at most 180 words in English or 300 Chinese characters')
 

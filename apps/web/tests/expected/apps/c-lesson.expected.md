@@ -1,7 +1,7 @@
 - complementary:
   - paragraph: C
   - heading "C 语言基础" [level=2]
-  - paragraph: 每课只学习一个新知识点，从程序入口逐步走到指针读写。
+  - paragraph: 从程序入口开始，循序渐进学会 C 的核心语法和用法。
   - text: 已掌握 0/22
   - button "开始新的学习对话":
     - img
@@ -98,8 +98,8 @@
 - main:
   - paragraph: 第 1 课，共 22 课
   - heading "程序从 main 开始" [level=3]
-  - text: 只认识 C 程序的入口 main。
+  - text: 认识 C 程序的入口 main。
   - img
   - heading "和 AI 导师一起开始" [level=4]
-  - paragraph: 导师每次只讲一个新知识点：先讲清概念、语法和最小例子，确认理解后再给小练习和总结。
+  - paragraph: 导师会先讲清本课内容、语法和最小例子，确认理解后再给小练习和总结。
   - button "开始第一课"
