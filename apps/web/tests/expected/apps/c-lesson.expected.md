@@ -1,35 +1,36 @@
-- paragraph: C
-- heading "C 语言基础" [level=2]
-- paragraph: 与 AI 导师持续对话，从第一段程序逐步理解 C 的核心语法与内存模型。
-- button "开始新的学习对话":
-  - img
-  - text: 开始新的学习对话
-- text: 已掌握 0/6
-- navigation "课程目录":
-  - button "1 程序从 main 开始 正在学习":
-    - text: "1"
-    - strong: 程序从 main 开始
-    - text: 正在学习
-  - button "2 变量与基本类型 第 2 课，共 6 课":
-    - text: "2"
-    - strong: 变量与基本类型
-    - text: 第 2 课，共 6 课
-  - button "3 条件与循环 第 3 课，共 6 课":
-    - text: "3"
-    - strong: 条件与循环
-    - text: 第 3 课，共 6 课
-  - button "4 函数拆分任务 第 4 课，共 6 课":
-    - text: "4"
-    - strong: 函数拆分任务
-    - text: 第 4 课，共 6 课
-  - button "5 数组保存一组值 第 5 课，共 6 课":
-    - text: "5"
-    - strong: 数组保存一组值
-    - text: 第 5 课，共 6 课
-  - button "6 指针与内存地址 第 6 课，共 6 课":
-    - text: "6"
-    - strong: 指针与内存地址
-    - text: 第 6 课，共 6 课
+- complementary:
+  - paragraph: C
+  - heading "C 语言基础" [level=2]
+  - paragraph: 与 AI 导师持续对话，从第一段程序逐步理解 C 的核心语法与内存模型。
+  - text: 已掌握 0/6
+  - button "开始新的学习对话":
+    - img
+    - text: 开始新的学习对话
+  - navigation "课程目录":
+    - button "1 程序从 main 开始 正在学习":
+      - text: "1"
+      - strong: 程序从 main 开始
+      - text: 正在学习
+    - button "2 变量与基本类型 第 2 课，共 6 课":
+      - text: "2"
+      - strong: 变量与基本类型
+      - text: 第 2 课，共 6 课
+    - button "3 条件与循环 第 3 课，共 6 课":
+      - text: "3"
+      - strong: 条件与循环
+      - text: 第 3 课，共 6 课
+    - button "4 函数拆分任务 第 4 课，共 6 课":
+      - text: "4"
+      - strong: 函数拆分任务
+      - text: 第 4 课，共 6 课
+    - button "5 数组保存一组值 第 5 课，共 6 课":
+      - text: "5"
+      - strong: 数组保存一组值
+      - text: 第 5 课，共 6 课
+    - button "6 指针与内存地址 第 6 课，共 6 课":
+      - text: "6"
+      - strong: 指针与内存地址
+      - text: 第 6 课，共 6 课
 - main:
   - paragraph: 第 1 课，共 6 课
   - heading "程序从 main 开始" [level=3]

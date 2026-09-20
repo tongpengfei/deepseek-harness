@@ -25,7 +25,7 @@ This package lets a learner work through six introductory C lessons with an AI T
 <a id="use-this-package"></a>
 ## Use this package
 
-The default Web composition loads the course automatically. Open **Apps**, choose **Learn C**, and start the first lesson. The App creates a dedicated DSH Session, introduces the current lesson to the Tutor, and keeps subsequent answers, questions, lesson changes, and Tutor responses in that Session. Mark a lesson understood to advance, or select any lesson from the outline.
+The default Web composition loads the course automatically. Open **Apps**, choose **Learn C**, and start the first lesson. On desktop, the App keeps the course overview and lesson outline in a left column while the Tutor conversation fills the right column; narrow screens stack the same regions. The App creates a dedicated DSH Session, introduces the current lesson to the Tutor, and keeps subsequent answers, questions, lesson changes, and Tutor responses in that Session. Mark a lesson understood to advance, or select any lesson from the outline.
 
 To mount the package in another browser composition, load it after the Apps shell:
 

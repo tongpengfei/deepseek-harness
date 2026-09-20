@@ -48,6 +48,14 @@ describe('web e2e: Apps catalog', () => {
     await app.click()
     const course = page.locator('[data-code-learning-app]')
     await course.getByRole('heading', { name: '和 AI 导师一起开始' }).waitFor({ timeout: 10_000 })
+    const [courseSidebar, tutor] = await Promise.all([
+      course.getByRole('complementary').boundingBox(),
+      course.getByRole('main').boundingBox(),
+    ])
+    if (courseSidebar === null || tutor === null) throw new Error('the C course columns have no layout boxes')
+    expect(courseSidebar.x + courseSidebar.width).toBeLessThan(tutor.x)
+    expect(Math.abs(courseSidebar.height - tutor.height)).toBeLessThan(1)
+    expect(tutor.width).toBeGreaterThan(courseSidebar.width * 2)
     const lessonSnapshot = await captureStableAria(page, '[data-code-learning-app]', scaffold.workspaceCwd)
     await compareOrRefreshGolden(C_LESSON_EXPECTED, lessonSnapshot, MODE)
     expect(tripwire.pageErrors).toEqual([])

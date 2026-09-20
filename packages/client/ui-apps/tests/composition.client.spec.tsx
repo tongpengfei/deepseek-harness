@@ -37,6 +37,7 @@ describe('ui-apps composition', () => {
     const listener = vi.fn()
     const unsubscribe = catalog.subscribe(listener)
     const initial = catalog.getSnapshot()
+    expect(initial).toEqual([{ id: 'learn-c', label: 'Learn C' }])
     expect(catalog.getSnapshot()).toBe(initial)
     const provider = client.ctx.plugin({
       name: 'example-app',
@@ -52,7 +53,10 @@ describe('ui-apps composition', () => {
     })
     await provider.await()
     await client.flush()
-    expect(catalog.getSnapshot()).toEqual([{ id: 'example', label: 'Example App' }])
+    expect(catalog.getSnapshot()).toEqual([
+      { id: 'example', label: 'Example App' },
+      { id: 'learn-c', label: 'Learn C' },
+    ])
     expect(listener).toHaveBeenCalled()
 
     const invalid = client.ctx.plugin({

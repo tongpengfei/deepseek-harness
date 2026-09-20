@@ -36,7 +36,7 @@ export function AppsPage({ appCatalog, renderSlot, t }: AppsPageProps): ReactNod
 
   if (selected !== undefined) {
     return (
-      <section className={css.page} data-apps-panel data-app-id={selected.id}>
+      <section className={`${css.page} ${css.detailPage}`} data-apps-panel data-app-id={selected.id}>
         <header className={css.appHeader}>
           <Button
             variant="ghost"

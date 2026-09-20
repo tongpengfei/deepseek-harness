@@ -15,6 +15,15 @@
   margin-left: auto;
 }
 
+.detailPage {
+  overflow: hidden;
+  padding: 20px clamp(20px, 3vw, 36px) 24px;
+}
+
+.detailPage > * {
+  max-width: none;
+}
+
 .catalogHeader {
   margin-bottom: 28px;
 }
@@ -109,15 +118,28 @@
 
 .appHeader {
   display: grid;
+  flex: 0 0 auto;
   grid-template-columns: auto 1fr;
   align-items: center;
   gap: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 
 .appBody {
   min-height: 0;
   flex: 1;
+  overflow: hidden;
+}
+
+@media (max-width: 760px) {
+  .detailPage {
+    overflow: auto;
+    padding-bottom: 20px;
+  }
+
+  .detailPage .appBody {
+    overflow: visible;
+  }
 }
 
 @media (max-width: 640px) {

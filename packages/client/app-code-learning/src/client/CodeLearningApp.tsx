@@ -169,29 +169,33 @@ function CoursePage({ t, useStore, actions, sessions }: CodeLearningAppProps): R
 
   return (
     <div className={css.app} data-code-learning-app>
-      <header className={css.hero}>
-        <div>
-          <p className={css.kicker}>{t('course.badge')}</p>
-          <h2>{t(cCourse.title)}</h2>
-          <p>{t(cCourse.description)}</p>
-        </div>
-        <Button variant="ghost" size="sm" icon={<IconRefreshOutline16 size={16} />}
-          onClick={() => { actions.reset(cCourse.lessons[0].id) }}>
-          {t('course.newSession')}
-        </Button>
-        <div className={css.progress} aria-label={t('course.progress', {
-          completed: completedLessonIds.length,
-          total: cCourse.lessons.length,
-        })}>
-          <span style={{ width: `${String(progress)}%` }} />
-        </div>
-        <span className={css.progressLabel}>{t('course.progress', {
-          completed: completedLessonIds.length,
-          total: cCourse.lessons.length,
-        })}</span>
-      </header>
+      <aside className={css.courseSidebar}>
+        <header className={css.hero}>
+          <div className={css.courseIdentity}>
+            <p className={css.kicker}>{t('course.badge')}</p>
+            <div>
+              <h2>{t(cCourse.title)}</h2>
+              <p>{t(cCourse.description)}</p>
+            </div>
+          </div>
+          <div className={css.progressRow}>
+            <span>{t('course.progress', {
+              completed: completedLessonIds.length,
+              total: cCourse.lessons.length,
+            })}</span>
+            <div className={css.progress} aria-label={t('course.progress', {
+              completed: completedLessonIds.length,
+              total: cCourse.lessons.length,
+            })}>
+              <span style={{ width: `${String(progress)}%` }} />
+            </div>
+          </div>
+          <Button variant="ghost" size="sm" icon={<IconRefreshOutline16 size={16} />}
+            onClick={() => { actions.reset(cCourse.lessons[0].id) }}>
+            {t('course.newSession')}
+          </Button>
+        </header>
 
-      <div className={css.workspace}>
         <nav className={css.outline} aria-label={t('course.lessonList')}>
           {cCourse.lessons.map((entry, index) => {
             const isActive = entry.id === lesson.id
@@ -212,109 +216,109 @@ function CoursePage({ t, useStore, actions, sessions }: CodeLearningAppProps): R
             )
           })}
         </nav>
+      </aside>
 
-        <main className={css.tutor}>
-          <header className={css.lessonHeader}>
-            <div>
-              <p>{t('lesson.number', { current: activeIndex + 1, total: cCourse.lessons.length })}</p>
-              <h3>{t(lesson.title)}</h3>
-              <span>{t(lesson.objective)}</span>
-            </div>
-            {binding !== undefined && (
-              <Button variant="outline" size="sm" onClick={completeLesson}>
-                {activeIndex + 1 === cCourse.lessons.length
-                  ? t('lesson.courseComplete')
-                  : completedLessonIds.includes(lesson.id)
-                    ? t('lesson.markComplete')
-                    : t('lesson.completeAndNext')}
+      <main className={css.tutor}>
+        <header className={css.lessonHeader}>
+          <div>
+            <p>{t('lesson.number', { current: activeIndex + 1, total: cCourse.lessons.length })}</p>
+            <h3>{t(lesson.title)}</h3>
+            <span>{t(lesson.objective)}</span>
+          </div>
+          {binding !== undefined && (
+            <Button variant="outline" size="sm" onClick={completeLesson}>
+              {activeIndex + 1 === cCourse.lessons.length
+                ? t('lesson.courseComplete')
+                : completedLessonIds.includes(lesson.id)
+                  ? t('lesson.markComplete')
+                  : t('lesson.completeAndNext')}
+            </Button>
+          )}
+        </header>
+
+        {tutorSessionId === undefined
+          ? (
+            <section className={css.onboarding}>
+              <IconSparkle16 size={24} />
+              <h4>{t('tutor.startTitle')}</h4>
+              <p>{t('tutor.startDescription')}</p>
+              <Button variant="primary" disabled={busy} onClick={() => { void startTutor() }}>
+                {t('tutor.start')}
               </Button>
-            )}
-          </header>
-
-          {tutorSessionId === undefined
-            ? (
-              <section className={css.onboarding}>
-                <IconSparkle16 size={24} />
-                <h4>{t('tutor.startTitle')}</h4>
-                <p>{t('tutor.startDescription')}</p>
-                <Button variant="primary" disabled={busy} onClick={() => { void startTutor() }}>
-                  {t('tutor.start')}
-                </Button>
-                {error !== undefined && (
-                  <div className={css.error} role="alert">
-                    <span>{t('tutor.error', { message: error })}</span>
-                  </div>
-                )}
-              </section>
-            )
-            : binding === undefined && error === undefined
-              ? <div className={css.centerStatus} role="status">{t('tutor.restoring')}</div>
-              : (
-                <>
-                  <section className={css.messages} aria-live="polite">
-                    {messages.length === 0 && !running && (
-                      <div className={css.emptyConversation}>
-                        <p>{t('tutor.empty')}</p>
-                        <Button variant="primary" disabled={busy} onClick={() => { void startTutor() }}>
-                          {t('tutor.start')}
-                        </Button>
-                      </div>
-                    )}
-                    {messages.map(message => (
-                      <article key={message.key} className={message.role === 'tutor' ? css.tutorMessage : css.learnerMessage}>
-                        <strong>{t(message.role === 'tutor' ? 'tutor.name' : 'tutor.you')}</strong>
-                        <MarkdownText text={message.text} streaming={message.streaming} labels={markdownLabels} />
-                      </article>
-                    ))}
-                    {running && messages.every(message => !message.streaming) && (
-                      <div className={css.thinking} role="status">{t('tutor.thinking')}</div>
-                    )}
-                    <div ref={messageEnd} />
-                  </section>
-
-                  {error !== undefined && (
-                    <div className={css.error} role="alert">
-                      <span>{t('tutor.error', { message: error })}</span>
-                      <Button variant="ghost" size="sm" onClick={() => { setRetainRevision(value => value + 1) }}>
-                        {t('tutor.retry')}
+              {error !== undefined && (
+                <div className={css.error} role="alert">
+                  <span>{t('tutor.error', { message: error })}</span>
+                </div>
+              )}
+            </section>
+          )
+          : binding === undefined && error === undefined
+            ? <div className={css.centerStatus} role="status">{t('tutor.restoring')}</div>
+            : (
+              <div className={css.conversation}>
+                <section className={css.messages} aria-live="polite">
+                  {messages.length === 0 && !running && (
+                    <div className={css.emptyConversation}>
+                      <p>{t('tutor.empty')}</p>
+                      <Button variant="primary" disabled={busy} onClick={() => { void startTutor() }}>
+                        {t('tutor.start')}
                       </Button>
                     </div>
                   )}
+                  {messages.map(message => (
+                    <article key={message.key} className={message.role === 'tutor' ? css.tutorMessage : css.learnerMessage}>
+                      <strong>{t(message.role === 'tutor' ? 'tutor.name' : 'tutor.you')}</strong>
+                      <MarkdownText text={message.text} streaming={message.streaming} labels={markdownLabels} />
+                    </article>
+                  ))}
+                  {running && messages.every(message => !message.streaming) && (
+                    <div className={css.thinking} role="status">{t('tutor.thinking')}</div>
+                  )}
+                  <div ref={messageEnd} />
+                </section>
 
-                  <div className={css.quickActions}>
-                    {(['tutor.quickExample', 'tutor.quickExplain', 'tutor.quickExercise', 'tutor.quickSummary'] as const)
-                      .map(key => (
-                        <button key={key} type="button" disabled={inputDisabled} onClick={() => { void send(t(key)) }}>
-                          {t(key)}
-                        </button>
-                      ))}
+                {error !== undefined && (
+                  <div className={css.error} role="alert">
+                    <span>{t('tutor.error', { message: error })}</span>
+                    <Button variant="ghost" size="sm" onClick={() => { setRetainRevision(value => value + 1) }}>
+                      {t('tutor.retry')}
+                    </Button>
                   </div>
+                )}
 
-                  <footer className={css.composer}>
-                    <textarea value={draft} disabled={inputDisabled} aria-label={t('tutor.placeholder')}
-                      placeholder={t('tutor.placeholder')} rows={3}
-                      onChange={(event) => { setDraft(event.currentTarget.value) }} onKeyDown={handleDraftKeyDown} />
-                    <div className={css.composerFooter}>
-                      <span>{t('tutor.reviewNotice')}</span>
-                      {running
-                        ? (
-                          <Button variant="outline" size="sm" icon={<IconStopFill16 size={16} />}
-                            onClick={() => { void binding?.session.cancel() }}>
-                            {t('tutor.stop')}
-                          </Button>
-                        )
-                        : (
-                          <Button variant="primary" size="sm" icon={<IconSendOutline14 size={14} />}
-                            disabled={inputDisabled || draft.trim() === ''} onClick={submitDraft}>
-                            {t('tutor.send')}
-                          </Button>
-                        )}
-                    </div>
-                  </footer>
-                </>
-              )}
-        </main>
-      </div>
+                <div className={css.quickActions}>
+                  {(['tutor.quickExample', 'tutor.quickExplain', 'tutor.quickExercise', 'tutor.quickSummary'] as const)
+                    .map(key => (
+                      <button key={key} type="button" disabled={inputDisabled} onClick={() => { void send(t(key)) }}>
+                        {t(key)}
+                      </button>
+                    ))}
+                </div>
+
+                <footer className={css.composer}>
+                  <textarea value={draft} disabled={inputDisabled} aria-label={t('tutor.placeholder')}
+                    placeholder={t('tutor.placeholder')} rows={3}
+                    onChange={(event) => { setDraft(event.currentTarget.value) }} onKeyDown={handleDraftKeyDown} />
+                  <div className={css.composerFooter}>
+                    <span>{t('tutor.reviewNotice')}</span>
+                    {running
+                      ? (
+                        <Button variant="outline" size="sm" icon={<IconStopFill16 size={16} />}
+                          onClick={() => { void binding?.session.cancel() }}>
+                          {t('tutor.stop')}
+                        </Button>
+                      )
+                      : (
+                        <Button variant="primary" size="sm" icon={<IconSendOutline14 size={14} />}
+                          disabled={inputDisabled || draft.trim() === ''} onClick={submitDraft}>
+                          {t('tutor.send')}
+                        </Button>
+                      )}
+                  </div>
+                </footer>
+              </div>
+            )}
+      </main>
     </div>
   )
 }
