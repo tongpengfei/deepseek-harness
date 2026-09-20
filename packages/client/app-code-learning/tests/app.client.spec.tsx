@@ -158,6 +158,7 @@ describe('CodeLearningApp', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Start lesson one' }))
 
     await waitFor(() => { expect(harness.create).toHaveBeenCalledOnce() })
+    expect(harness.create).toHaveBeenCalledWith({ agentPreset: 'learning' })
     await waitFor(() => { expect(harness.promptCall).toHaveBeenCalledOnce() })
     expect(harness.rename).toHaveBeenCalledWith('Learn C')
     expect(promptText(harness.promptCall.mock.calls[0])).toContain('Programs begin at main')

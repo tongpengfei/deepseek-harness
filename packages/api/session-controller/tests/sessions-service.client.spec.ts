@@ -825,8 +825,10 @@ describe('create', () => {
   it('passes a preallocated id and preserves it on ordinary failure', async ({ bench }) => {
     const b = bench()
     b.mock.remote.session.create.mockResolvedValue(ok({ sessionId: sid('fresh') }))
-    await expect(b.svc.create({ cwd: '/w', sessionId: sid('fresh') })).resolves.toBe('fresh')
-    expect(b.mock.remote.session.create).toHaveBeenCalledExactlyOnceWith({ cwd: '/w', sessionId: 'fresh' })
+    await expect(b.svc.create({ cwd: '/w', sessionId: sid('fresh'), agentPreset: 'learning' })).resolves.toBe('fresh')
+    expect(b.mock.remote.session.create).toHaveBeenCalledExactlyOnceWith({
+      cwd: '/w', sessionId: 'fresh', agentPreset: 'learning',
+    })
     b.mock.remote.session.create.mockResolvedValue(err(new RemoteError('gateway/internal', '爆了', {})))
     const failure = await b.svc.create({ sessionId: sid('candidate') }).catch((error: unknown) => error)
     expect(failure).toBeInstanceOf(SessionCreateError)

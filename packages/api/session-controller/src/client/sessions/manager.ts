@@ -481,7 +481,7 @@ export class SessionManager {
    * Contract session.create; on success merge into summaries immediately (no
    * wait for the next refresh). A created session is blank by definition
    * (entity birth precedes the first message).
-   * @param opts - target workspace or working directory, plus an optional caller-owned id.
+   * @param opts - target workspace or working directory, optional caller-owned id, and optional Agent preset.
    * @returns the create result.
   */
   async create(
@@ -489,12 +489,14 @@ export class SessionManager {
       workspaceId?: WorkspaceId
       cwd?: string
       sessionId?: SessionId
+      agentPreset?: string
     } = {},
   ): Promise<RemoteResult<{ sessionId: SessionId }>> {
     const shared = opts.sessionId === undefined ? {} : { sessionId: opts.sessionId }
+    const preset = opts.agentPreset === undefined ? {} : { agentPreset: opts.agentPreset }
     const payload = opts.workspaceId !== undefined
-      ? { workspaceId: opts.workspaceId, ...shared }
-      : { ...(opts.cwd === undefined ? {} : { cwd: opts.cwd }), ...shared }
+      ? { workspaceId: opts.workspaceId, ...shared, ...preset }
+      : { ...(opts.cwd === undefined ? {} : { cwd: opts.cwd }), ...shared, ...preset }
     const result = await this.remote.session.create(payload)
     if (result.ok) {
       this.recordMutation({ kind: 'upsert', summary: {

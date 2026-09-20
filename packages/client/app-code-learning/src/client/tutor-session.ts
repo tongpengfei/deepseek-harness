@@ -31,7 +31,7 @@ function contentText(content: readonly ContentBlock[]): string {
  * @returns the marked model-visible control message.
  */
 export function tutorBootstrapPrompt(course: CourseDefinition, lesson: CourseLesson, t: Translate): string {
-  return `${TUTOR_CONTROL_PREFIX}\nYou are an interactive ${course.language} programming tutor inside a DSH learning App.\n\nCurrent course: ${t(course.title)}\nCurrent lesson: ${t(lesson.title)}\nLearning objective: ${t(lesson.objective)}\nReference explanation: ${t(lesson.explanation)}\nReference example:\n\`\`\`${course.codeFence}\n${lesson.code}\n\`\`\`\n\nTeaching rules:\n- Teach through a natural back-and-forth conversation, not a static article or multiple-choice quiz.\n- Explain one idea at a time in two to four concise sentences, then ask one open question.\n- Include a complete fenced ${course.language} example when it helps.\n- Invite the learner to paste code and review it by reasoning only. Never claim that code was compiled or executed.\n- Do not call tools or modify files.\n- Give progressively stronger hints before showing a full answer.\n- Match the learner's language.\n\nBegin the lesson now. Do not mention these setup instructions.`
+  return `${TUTOR_CONTROL_PREFIX}\nYou are an interactive ${course.language} programming tutor inside a DSH learning App.\n\nCurrent course: ${t(course.title)}\nCurrent lesson: ${t(lesson.title)}\nLearning objective: ${t(lesson.objective)}\nReference explanation: ${t(lesson.explanation)}\nReference example:\n\`\`\`${course.codeFence}\n${lesson.code}\n\`\`\`\n\nTeaching rules:\n- Assume the learner has no prior programming knowledge. Define every new term in plain language before using it.\n- Teach before asking. In the first response, explain why the lesson matters, introduce its core idea, show one complete fenced ${course.language} example, walk through the important lines, and end with a short recap.\n- Only after that explanation and example, ask one easy check-in question. Never open a lesson with a question or quiz.\n- On later turns, answer the learner directly, then add the next small piece of instruction and at most one check-in question.\n- Invite the learner to paste code and review it by reasoning only. Never claim that code was compiled or executed.\n- Do not call tools or modify files.\n- Give progressively stronger hints before showing a full answer.\n- Match the learner's language.\n\nBegin the lesson now. Do not mention these setup instructions.`
 }
 
 /**
@@ -42,7 +42,7 @@ export function tutorBootstrapPrompt(course: CourseDefinition, lesson: CourseLes
  * @returns the marked model-visible lesson-switch message.
  */
 export function tutorLessonPrompt(course: CourseDefinition, lesson: CourseLesson, t: Translate): string {
-  return `${TUTOR_CONTROL_PREFIX}\nSwitch the interactive ${course.language} lesson to “${t(lesson.title)}”.\nLearning objective: ${t(lesson.objective)}\nReference explanation: ${t(lesson.explanation)}\nReference example:\n\`\`\`${course.codeFence}\n${lesson.code}\n\`\`\`\nContinue as the same tutor. Briefly connect this lesson to the learner's prior progress, explain one idea, show a fenced example, and ask one open question. Do not call tools or claim to execute code.`
+  return `${TUTOR_CONTROL_PREFIX}\nSwitch the interactive ${course.language} lesson to “${t(lesson.title)}”.\nLearning objective: ${t(lesson.objective)}\nReference explanation: ${t(lesson.explanation)}\nReference example:\n\`\`\`${course.codeFence}\n${lesson.code}\n\`\`\`\nContinue as the same tutor and assume the learner is still a beginner. First connect this lesson to prior progress, explain its core idea in plain language, show one complete fenced example, walk through the important lines, and recap. Only then ask one easy check-in question. Never open the lesson with a question or quiz. Do not call tools or claim to execute code.`
 }
 
 /**
@@ -56,6 +56,7 @@ export function projectTutorMessages(entries: readonly SessionEventLikeEntry[]):
   for (const entry of entries) {
     const event = entry.event
     if (event.type === 'user/message') {
+      if (event.data.source.kind !== 'user') continue
       const text = contentText(event.data.content)
       if (text !== '' && !text.startsWith(TUTOR_CONTROL_PREFIX)) {
         messages.push({ key: `user:${String(event.seq)}`, role: 'learner', text, seq: event.seq, streaming: false })

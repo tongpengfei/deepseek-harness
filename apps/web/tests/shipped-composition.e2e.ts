@@ -21,7 +21,7 @@ import type {} from '@deepseek-ai/dsh-user-approval'
 import type {} from '@deepseek-ai/dsh-permission-presets'
 import type {} from '@deepseek-ai/dsh-agent-presets'
 import type {} from '@deepseek-ai/dsh-commands'
-import type {} from '@deepseek-ai/dsh-system-prompt'
+import { renderPrompt } from '@deepseek-ai/dsh-system-prompt'
 import type {} from '@deepseek-ai/dsh-terminal'
 import { launchWebScaffold, readPersistedEvents, type WebScaffold } from './scaffold.ts'
 import { AUTO_REVIEW_FIXTURE } from './auto-review-fixture.ts'
@@ -638,6 +638,24 @@ it('assembles the shipped Web transport, catalog, guidance, and defaults', async
     })
   } finally {
     await commandHandle.dispose()
+  }
+}, 120_000)
+
+it('mounts the shipped learning preset as a tool-free beginner tutor', async () => {
+  scaffold = await launchWebScaffold({ deepSeekMissingCredential: true })
+  const ctx = scaffold.ctx
+  const handle = await ctx.agents.create({
+    sessionId: SessionId('shipped-learning-preset'),
+    setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'learning').then(() => undefined),
+  })
+  try {
+    const assembly = await ctx.systemPrompt.assemble({ scope: handle.agent })
+    expect(ctx.tools.schemas(handle.agent)).toEqual([])
+    expect(assembly.contexts).toEqual([])
+    expect(renderPrompt(assembly)).toContain('patient tutor teaching a complete beginner')
+    expect(renderPrompt(assembly)).toContain('Teach before asking the learner to respond.')
+  } finally {
+    await handle.dispose()
   }
 }, 120_000)
 

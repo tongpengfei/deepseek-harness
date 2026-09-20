@@ -15,11 +15,15 @@ describe('Tutor Session adapter', () => {
     expect(initial).toContain('Programs begin at main')
     expect(initial).toContain('```c\n#include <stdio.h>')
     expect(initial).toContain('Never claim that code was compiled or executed')
+    expect(initial).toContain('Teach before asking')
+    expect(initial).toContain('Never open a lesson with a question or quiz')
+    expect(initial).toContain('walk through the important lines')
 
     const switched = tutorLessonPrompt(cCourse, cCourse.lessons[5]!, t)
     expect(switched).toContain('Pointers and addresses')
     expect(switched).toContain('int *pointer = &value;')
     expect(switched).toContain('same tutor')
+    expect(switched).toContain('Only then ask one easy check-in question')
   })
 
   it('hides control messages and projects durable plus streaming conversation text', () => {
@@ -41,6 +45,10 @@ describe('Tutor Session adapter', () => {
       } } },
       { type: 'event', event: { type: 'user/message', seq: 3, time: 3, data: {
         content: [{ type: 'text', text: 'main 为什么返回 int？' }], source: { kind: 'user' },
+      } } },
+      { type: 'event', event: { type: 'user/message', seq: 3.5, time: 3, data: {
+        content: [{ type: 'text', text: '<system-reminder>workspace instructions</system-reminder>' }],
+        source: { kind: 'agent-instructions' },
       } } },
       { type: 'transient', event: { type: 'assistant/live-chunk', seq: 4, time: 4, data: {
         attemptId: 'attempt', turn: 2, step: 1, chunk: { type: 'text-delta', index: 0, text: '它把' },

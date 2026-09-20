@@ -128,7 +128,7 @@ function CoursePage({ t, useStore, actions, sessions }: CodeLearningAppProps): R
     setBusy(true)
     setError(undefined)
     try {
-      const id = tutorSessionId as SessionId | undefined ?? await sessions.create()
+      const id = tutorSessionId as SessionId | undefined ?? await sessions.create({ agentPreset: 'learning' })
       actions.setTutorSession(id)
       await sessions.using(id, { source: 'codeLearningTutor' }, async (reference) => {
         const rename = await reference.binding.session.rename(t('app.name'))

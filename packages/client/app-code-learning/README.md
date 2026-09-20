@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-This package lets a learner work through six introductory C lessons with an AI Tutor inside the Web Apps catalog. The Tutor explains concepts, renders code, asks follow-up questions, and responds to free-form answers or pasted code. Its messages use a dedicated durable DSH Session, while lesson selection and completion survive page refreshes in the current browser. The course UI consumes a language-independent definition, so another programming language can reuse the same dialogue flow with different lessons and examples.
+This package lets a learner work through six introductory C lessons with an AI Tutor inside the Web Apps catalog. The Tutor treats the learner as a beginner: it explains each concept, presents and walks through a complete example, recaps, and only then asks one easy check-in question. It responds to free-form answers or pasted code. Its messages use a dedicated durable DSH Session, while lesson selection and completion survive page refreshes in the current browser. The course UI consumes a language-independent definition, so another programming language can reuse the same dialogue flow with different lessons and examples.
 
 ## Table of Contents
 
@@ -44,7 +44,7 @@ The package has no configuration fields. **Start a new learning conversation** c
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-The plugin registers one `apps.item` entry with a root-scoped persistent store and injects the Client Session Controller into that entry. The presentation reads a `CourseDefinition` whose lessons carry localization keys and grounding examples. It creates or retains one dedicated Session through `sessions.create()`, `sessions.retain()`, and `sessions.using()`, projects logged user and assistant text into the Tutor timeline, and submits prompts through the Session face. Control prompts are logged so model-visible lesson context is reconstructable, but the App hides those messages from the learner timeline.
+The plugin registers one `apps.item` entry with a root-scoped persistent store and injects the Client Session Controller into that entry. The presentation reads a `CourseDefinition` whose lessons carry localization keys and grounding examples. It creates a Session with the tool-free `learning` Agent preset, retains it through `sessions.retain()` and `sessions.using()`, projects logged learner and assistant text into the Tutor timeline, and submits prompts through the Session face. Control prompts are logged so model-visible lesson context is reconstructable, while the App hides control and plugin-injected messages from the learner timeline.
 
 The C data is separate from the React flow. Another language adds a course definition and registration while reusing Session ownership, dialogue rendering, navigation, manual completion, and responsive layout.
 
@@ -70,11 +70,11 @@ The C data is separate from the React flow. Another language adds a course defin
 
 #### What the model sees
 
-A logged control message marked with `DSH_TUTOR_CONTROL` identifies the programming language, localized course and lesson, objective, reference explanation, and fenced example. It asks the model to teach one idea at a time through short dialogue and open questions, offer progressively stronger hints, reason about pasted code without claiming execution, avoid tools and file changes, and match the learner's language. Lesson changes append the next lesson's grounding to the same Session. Ordinary learner messages enter the Session unchanged.
+A logged control message marked with `DSH_TUTOR_CONTROL` identifies the programming language, localized course and lesson, objective, reference explanation, and fenced example. It tells the model to assume no prior programming knowledge, explain the lesson in plain language, show and walk through a complete example, recap, and only then ask one easy check-in question. It also requires progressively stronger hints, reasoning about pasted code without claiming execution, and the learner's language. The `learning` preset exposes no tools and suppresses runtime workspace context. Lesson changes append the next lesson's grounding to the same Session. Ordinary learner messages enter the Session unchanged.
 
 #### Token effect
 
-The initial turn adds one control message containing the selected lesson's grounding and example. Each lesson change adds another compact control message; ordinary turns add only the learner message and the normal Session context owned by the composed profile.
+The initial turn adds one control message containing the selected lesson's grounding and example. Each lesson change adds another compact control message; ordinary turns add only the learner message and retained Tutor history. The preset adds one short complete persona and no tool schemas, skill catalog, or workspace instructions.
 
 #### KV Cache effect
 
