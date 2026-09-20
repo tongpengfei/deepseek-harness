@@ -224,6 +224,10 @@
     - id: ui-apps
       name: '@deepseek-ai/dsh-client-ui-apps'
 
+    # Shipped programming course; additional languages reuse its course flow.
+    - id: app-code-learning
+      name: '@deepseek-ai/dsh-client-app-code-learning'
+
     # The right Sidebar: one docking surface per session over ui-dockkit.
     - id: ui-sidebar-right
       name: '@deepseek-ai/dsh-client-ui-sidebar-right'

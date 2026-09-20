@@ -1,0 +1,51 @@
+- paragraph: C
+- heading "C 语言基础" [level=2]
+- paragraph: 沿着一条可完成的学习路径理解 C 的核心语法与内存模型。
+- button "重置进度":
+  - img
+  - text: 重置进度
+- text: 已完成 0/6
+- navigation "课程目录":
+  - button "1 程序从 main 开始 当前":
+    - text: "1"
+    - strong: 程序从 main 开始
+    - text: 当前
+  - button "2 变量与基本类型 第 2 课，共 6 课":
+    - text: "2"
+    - strong: 变量与基本类型
+    - text: 第 2 课，共 6 课
+  - button "3 条件与循环 第 3 课，共 6 课":
+    - text: "3"
+    - strong: 条件与循环
+    - text: 第 3 课，共 6 课
+  - button "4 函数拆分任务 第 4 课，共 6 课":
+    - text: "4"
+    - strong: 函数拆分任务
+    - text: 第 4 课，共 6 课
+  - button "5 数组保存一组值 第 5 课，共 6 课":
+    - text: "5"
+    - strong: 数组保存一组值
+    - text: 第 5 课，共 6 课
+  - button "6 指针与内存地址 第 6 课，共 6 课":
+    - text: "6"
+    - strong: 指针与内存地址
+    - text: 第 6 课，共 6 课
+- main:
+  - paragraph: 第 1 课，共 6 课
+  - heading "程序从 main 开始" [level=3]
+  - heading "本课目标" [level=4]
+  - paragraph: 认识 C 程序结构，并输出第一行文字。
+  - paragraph: 每个可执行 C 程序都从 main 函数进入。stdio.h 声明输入输出函数，printf 把格式化文本写到终端，return 0 表示程序正常结束。
+  - heading "代码示例" [level=4]
+  - code: "#include <stdio.h> int main(void) { printf(\"Hello, C!\\n\"); return 0; }"
+  - heading "检查理解" [level=4]
+  - paragraph: 哪一行让 printf 的声明对编译器可见？
+  - button "A return 0;"
+  - 'button "B #include <stdio.h>"'
+  - button "C int main(void)"
+  - button "上一课" [disabled]:
+    - img
+    - text: 上一课
+  - button "下一课" [disabled]:
+    - text: 下一课
+    - img

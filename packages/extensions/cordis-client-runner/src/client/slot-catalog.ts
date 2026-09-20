@@ -122,7 +122,9 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     hookContext: '',
     slotInject: '',
     declaredBy: 'an entry in \'main\' (client-ui-apps), so it exists while that entry is mounted',
-    occupants: [],
+    occupants: [
+      'client-app-code-learning CodeLearningApp id \'learn-c\'',
+    ],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'apps.item\', () => ctx.slots.register(\n      { name: \'apps.item\', id: \'my-entry\', order: 100, label: \'My entry\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
     source: 'packages/client/ui-apps/src/client/slot-contract.ts:24',

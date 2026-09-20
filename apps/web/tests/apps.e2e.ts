@@ -1,5 +1,5 @@
-// Web e2e scenario for the shipped Apps catalog. It uses no model fixture:
-// the empty catalog is entirely client composition and a stray stream fails loud.
+// Web e2e scenario for the shipped Apps catalog and C course. It uses no model
+// fixture: both views are client composition and a stray stream fails loud.
 import { fileURLToPath } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
@@ -12,7 +12,8 @@ import {
 import { ZH_BROWSER_LOCALE, saveFailureShot } from './support.ts'
 
 const SNAPSHOT_DIR = fileURLToPath(new URL('./expected/apps', import.meta.url))
-const EMPTY_EXPECTED = join(SNAPSHOT_DIR, 'empty.expected.md')
+const CATALOG_EXPECTED = join(SNAPSHOT_DIR, 'catalog.expected.md')
+const C_LESSON_EXPECTED = join(SNAPSHOT_DIR, 'c-lesson.expected.md')
 const MODE = webSnapshotMode()
 
 describe('web e2e: Apps catalog', () => {
@@ -35,18 +36,27 @@ describe('web e2e: Apps catalog', () => {
     await scaffold?.close()
   })
 
-  it('opens the shipped empty catalog from the global sidebar', async () => {
-    onTestFailed(() => saveFailureShot(page, 'web-e2e-apps-empty'))
+  it('opens the shipped catalog and C course from the global sidebar', async () => {
+    onTestFailed(() => saveFailureShot(page, 'web-e2e-apps-c-course'))
     await page.getByRole('navigation', { name: '全局面板' }).getByRole('button', { name: '应用', exact: true }).click()
     const panel = page.locator('[data-apps-panel]')
-    await panel.getByRole('heading', { name: '还没有应用' }).waitFor({ timeout: 10_000 })
-    const snapshot = await captureStableAria(page, '[data-apps-panel]', scaffold.workspaceCwd)
-    await compareOrRefreshGolden(EMPTY_EXPECTED, snapshot, MODE)
+    const app = panel.getByRole('button', { name: /C 语言学习/ })
+    await app.waitFor({ timeout: 10_000 })
+    const catalogSnapshot = await captureStableAria(page, '[data-apps-panel]', scaffold.workspaceCwd)
+    await compareOrRefreshGolden(CATALOG_EXPECTED, catalogSnapshot, MODE)
+
+    await app.click()
+    const course = page.locator('[data-code-learning-app]')
+    await course.getByRole('heading', { name: '程序从 main 开始' }).waitFor({ timeout: 10_000 })
+    const lessonSnapshot = await captureStableAria(page, '[data-code-learning-app]', scaffold.workspaceCwd)
+    await compareOrRefreshGolden(C_LESSON_EXPECTED, lessonSnapshot, MODE)
+    await course.getByRole('button', { name: /#include <stdio.h>/ }).click()
+    await course.getByRole('status').getByText('回答正确').waitFor()
     expect(tripwire.pageErrors).toEqual([])
   }, 60_000)
 
   it.skipIf(MODE === 'record')('keeps the fixture inventory closed', async () => {
     expect(tripwire.warnings).toEqual([])
-    await assertFixtureInventory(SNAPSHOT_DIR, ['empty.expected.md'])
+    await assertFixtureInventory(SNAPSHOT_DIR, ['catalog.expected.md', 'c-lesson.expected.md'])
   })
 })

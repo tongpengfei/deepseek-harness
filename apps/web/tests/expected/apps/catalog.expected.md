@@ -1,0 +1,7 @@
+- heading "应用" [level=1]
+- paragraph: 使用针对具体场景设计的 AI 工具
+- list "应用列表":
+  - listitem:
+    - button "C 语言学习 从第一段程序到指针，用短课和即时练习掌握 C 基础。 6 节核心课程":
+      - strong: C 语言学习
+      - text: 从第一段程序到指针，用短课和即时练习掌握 C 基础。 6 节核心课程
