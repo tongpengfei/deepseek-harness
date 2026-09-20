@@ -1,8 +1,8 @@
 - complementary:
   - paragraph: C
   - heading "C 语言基础" [level=2]
-  - paragraph: 与 AI 导师持续对话，从第一段程序逐步理解 C 的核心语法与内存模型。
-  - text: 已掌握 0/6
+  - paragraph: 每课只学习一个新知识点，从程序入口逐步走到指针读写。
+  - text: 已掌握 0/22
   - button "开始新的学习对话":
     - img
     - text: 开始新的学习对话
@@ -11,31 +11,95 @@
       - text: "1"
       - strong: 程序从 main 开始
       - text: 正在学习
-    - button "2 变量与基本类型 第 2 课，共 6 课":
+    - button "2 引入 stdio.h 第 2 课，共 22 课":
       - text: "2"
-      - strong: 变量与基本类型
-      - text: 第 2 课，共 6 课
-    - button "3 条件与循环 第 3 课，共 6 课":
+      - strong: 引入 stdio.h
+      - text: 第 2 课，共 22 课
+    - button "3 用 printf 输出文字 第 3 课，共 22 课":
       - text: "3"
-      - strong: 条件与循环
-      - text: 第 3 课，共 6 课
-    - button "4 函数拆分任务 第 4 课，共 6 课":
+      - strong: 用 printf 输出文字
+      - text: 第 3 课，共 22 课
+    - button "4 用 \\n 换行 第 4 课，共 22 课":
       - text: "4"
-      - strong: 函数拆分任务
-      - text: 第 4 课，共 6 课
-    - button "5 数组保存一组值 第 5 课，共 6 课":
+      - strong: 用 \n 换行
+      - text: 第 4 课，共 22 课
+    - button "5 用 int 保存整数 第 5 课，共 22 课":
       - text: "5"
-      - strong: 数组保存一组值
-      - text: 第 5 课，共 6 课
-    - button "6 指针与内存地址 第 6 课，共 6 课":
+      - strong: 用 int 保存整数
+      - text: 第 5 课，共 22 课
+    - button "6 用 %d 输出整数 第 6 课，共 22 课":
       - text: "6"
-      - strong: 指针与内存地址
-      - text: 第 6 课，共 6 课
+      - strong: 用 %d 输出整数
+      - text: 第 6 课，共 22 课
+    - button "7 计算整数加法 第 7 课，共 22 课":
+      - text: "7"
+      - strong: 计算整数加法
+      - text: 第 7 课，共 22 课
+    - button "8 给变量重新赋值 第 8 课，共 22 课":
+      - text: "8"
+      - strong: 给变量重新赋值
+      - text: 第 8 课，共 22 课
+    - button "9 比较两个整数 第 9 课，共 22 课":
+      - text: "9"
+      - strong: 比较两个整数
+      - text: 第 9 课，共 22 课
+    - button "10 满足条件时执行 if 第 10 课，共 22 课":
+      - text: "10"
+      - strong: 满足条件时执行 if
+      - text: 第 10 课，共 22 课
+    - button "11 用 else 处理另一种情况 第 11 课，共 22 课":
+      - text: "11"
+      - strong: 用 else 处理另一种情况
+      - text: 第 11 课，共 22 课
+    - button "12 用 while 重复 第 12 课，共 22 课":
+      - text: "12"
+      - strong: 用 while 重复
+      - text: 第 12 课，共 22 课
+    - button "13 用 for 计数循环 第 13 课，共 22 课":
+      - text: "13"
+      - strong: 用 for 计数循环
+      - text: 第 13 课，共 22 课
+    - button "14 定义并调用函数 第 14 课，共 22 课":
+      - text: "14"
+      - strong: 定义并调用函数
+      - text: 第 14 课，共 22 课
+    - button "15 用参数接收输入 第 15 课，共 22 课":
+      - text: "15"
+      - strong: 用参数接收输入
+      - text: 第 15 课，共 22 课
+    - button "16 让函数返回结果 第 16 课，共 22 课":
+      - text: "16"
+      - strong: 让函数返回结果
+      - text: 第 16 课，共 22 课
+    - button "17 用数组保存多个整数 第 17 课，共 22 课":
+      - text: "17"
+      - strong: 用数组保存多个整数
+      - text: 第 17 课，共 22 课
+    - button "18 用下标读取数组元素 第 18 课，共 22 课":
+      - text: "18"
+      - strong: 用下标读取数组元素
+      - text: 第 18 课，共 22 课
+    - button "19 遍历数组 第 19 课，共 22 课":
+      - text: "19"
+      - strong: 遍历数组
+      - text: 第 19 课，共 22 课
+    - button "20 让指针保存地址 第 20 课，共 22 课":
+      - text: "20"
+      - strong: 让指针保存地址
+      - text: 第 20 课，共 22 课
+    - button "21 通过指针读取值 第 21 课，共 22 课":
+      - text: "21"
+      - strong: 通过指针读取值
+      - text: 第 21 课，共 22 课
+    - button "22 通过指针修改值 第 22 课，共 22 课":
+      - text: "22"
+      - strong: 通过指针修改值
+      - text: 第 22 课，共 22 课
 - main:
-  - paragraph: 第 1 课，共 6 课
+  - paragraph: 第 1 课，共 22 课
   - heading "程序从 main 开始" [level=3]
-  - text: 认识 C 程序结构，并输出第一行文字。
+  - text: 只认识 C 程序的入口 main。
   - img
   - heading "和 AI 导师一起开始" [level=4]
-  - paragraph: 导师会围绕当前课程逐步讲解、展示完整代码并通过追问确认理解。你可以随时提问或粘贴代码。
+  - paragraph: 导师每次只讲一个新知识点：先讲清概念、语法和最小例子，确认理解后再给小练习和总结。
   - button "开始第一课"

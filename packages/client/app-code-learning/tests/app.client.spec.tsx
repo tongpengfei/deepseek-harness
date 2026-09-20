@@ -147,7 +147,7 @@ describe('CodeLearningApp', () => {
     const harness = tutorHarness()
     render(<CodeLearningApp {...props('summary', harness.sessions)} />)
     expect(screen.getByText(/AI Tutor/)).toBeTruthy()
-    expect(screen.getByText('6 conversational lessons')).toBeTruthy()
+    expect(screen.getByText('22 micro-lessons')).toBeTruthy()
   })
 
   it('creates a durable Tutor Session and renders its Markdown code', async () => {
@@ -176,10 +176,10 @@ describe('CodeLearningApp', () => {
     const harness = tutorHarness()
     render(<CodeLearningApp {...props('page', harness.sessions)} />)
     expect(screen.getByRole('heading', { name: 'Programs begin at main' })).toBeTruthy()
-    fireEvent.click(screen.getByRole('button', { name: /Variables and basic types/ }))
-    expect(screen.getByRole('heading', { name: 'Variables and basic types' })).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: /Include stdio.h/ }))
+    expect(screen.getByRole('heading', { name: 'Include stdio.h' })).toBeTruthy()
     expect(harness.promptCall).not.toHaveBeenCalled()
-    fireEvent.click(screen.getByRole('button', { name: /Variables and basic types/ }))
+    fireEvent.click(screen.getByRole('button', { name: /Include stdio.h/ }))
     expect(harness.promptCall).not.toHaveBeenCalled()
   })
 
@@ -202,23 +202,23 @@ describe('CodeLearningApp', () => {
       [{ type: 'text', text: 'Why does main return int?' }], 'queue',
     ) })
 
-    fireEvent.click(screen.getByRole('button', { name: 'Show another example' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Show another example of this concept' }))
     await waitFor(() => { expect(harness.promptCall).toHaveBeenCalledWith(
-      [{ type: 'text', text: 'Show another example' }], 'queue',
+      [{ type: 'text', text: 'Show another example of this concept' }], 'queue',
     ) })
 
-    fireEvent.click(screen.getByRole('button', { name: /Variables and basic types/ }))
+    fireEvent.click(screen.getByRole('button', { name: /Include stdio.h/ }))
     await waitFor(() => {
       const last = promptText(harness.promptCall.mock.calls.at(-1))
-      expect(last).toContain('Switch the interactive C lesson')
-      expect(last).toContain('Variables and basic types')
+      expect(last).toContain('Switch the interactive C course')
+      expect(last).toContain('Include stdio.h')
     })
 
     fireEvent.click(screen.getByRole('button', { name: 'Got it, start the next lesson' }))
-    expect(screen.getByLabelText('1/6 mastered')).toBeTruthy()
-    expect(screen.getByRole('heading', { name: 'Conditions and loops' })).toBeTruthy()
+    expect(screen.getByLabelText('1/22 mastered')).toBeTruthy()
+    expect(screen.getByRole('heading', { name: 'Print text with printf' })).toBeTruthy()
 
-    fireEvent.click(screen.getByRole('button', { name: /Variables and basic types/ }))
+    fireEvent.click(screen.getByRole('button', { name: /Include stdio.h/ }))
     expect(screen.getByRole('button', { name: 'I understand this lesson' })).toBeTruthy()
   })
 
@@ -248,10 +248,10 @@ describe('CodeLearningApp', () => {
     await waitFor(() => { expect(harness.promptCall).toHaveBeenCalledOnce() })
     expect(harness.create).not.toHaveBeenCalled()
 
-    fireEvent.click(screen.getByRole('button', { name: /Pointers and addresses/ }))
-    await waitFor(() => { expect(screen.getByRole('heading', { name: 'Pointers and addresses' })).toBeTruthy() })
+    fireEvent.click(screen.getByRole('button', { name: /Write through a pointer/ }))
+    await waitFor(() => { expect(screen.getByRole('heading', { name: 'Write through a pointer' })).toBeTruthy() })
     fireEvent.click(screen.getByRole('button', { name: 'Complete the course' }))
-    expect(screen.getByLabelText('1/6 mastered')).toBeTruthy()
+    expect(screen.getByLabelText('1/22 mastered')).toBeTruthy()
   })
 
   it('surfaces prompt and rename failures and retries a failed retain', async () => {
@@ -363,7 +363,7 @@ describe('CodeLearningApp', () => {
     render(<CodeLearningApp {...unavailableProps} />)
     unavailableReady.reject('offline')
     expect(await screen.findByText(/offline/)).toBeTruthy()
-    const quick = screen.getByRole('button', { name: 'Show another example' })
+    const quick = screen.getByRole('button', { name: 'Show another example of this concept' })
     quick.removeAttribute('disabled')
     fireEvent.click(quick)
     expect(unavailable.promptCall).not.toHaveBeenCalled()

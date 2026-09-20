@@ -8,7 +8,9 @@ export interface CourseLesson {
   readonly title: CourseLocaleKey
   readonly objective: CourseLocaleKey
   readonly explanation: CourseLocaleKey
+  readonly syntax: string
   readonly code: string
+  readonly practice: CourseLocaleKey
 }
 
 /** Data needed to teach one programming language through the shared Tutor flow. */

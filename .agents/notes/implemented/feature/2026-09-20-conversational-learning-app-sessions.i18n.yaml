@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-09-20-conversational-learning-app-sessions.md
-2026-09-20-conversational-learning-app-sessions.md: b3950ad264e0cf1448ad43b48f4eedc56ed88d2e
-2026-09-20-conversational-learning-app-sessions.zh.md: e1f1679c59178aea3cf0e7af9d62de8d204cf800
+2026-09-20-conversational-learning-app-sessions.md: fd703b894ddcb5a369b4e701fcd75e76bb18b457
+2026-09-20-conversational-learning-app-sessions.zh.md: 779be5ab5bf61557452df55cc0b634e49543417b

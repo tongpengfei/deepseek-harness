@@ -19,6 +19,39 @@ export interface TutorMessage {
 
 type Translate = (key: CourseLocaleKey) => string
 
+function lessonGrounding(course: CourseDefinition, lesson: CourseLesson, t: Translate): string {
+  const lessonIndex = course.lessons.findIndex(entry => entry.id === lesson.id)
+  const priorConcepts = course.lessons.slice(0, Math.max(0, lessonIndex)).map(entry => t(entry.title)).join('; ')
+  return `Current course: ${t(course.title)}
+Current lesson: ${t(lesson.title)}
+The only new concept in this lesson: ${t(lesson.objective)}
+Plain-language grounding: ${t(lesson.explanation)}
+Focus syntax: ${lesson.syntax}
+Concepts introduced by earlier lessons: ${priorConcepts || '(none)'}
+Minimal reference example:
+\`\`\`${course.codeFence}
+${lesson.code}
+\`\`\`
+Practice to use only after the learner is ready: ${t(lesson.practice)}`
+}
+
+function teachingRules(course: CourseDefinition): string {
+  return `Teaching sequence:
+1. Opening explanation: teach only the stated new concept. Explain the concept in plain language, show the focus syntax, say when it is used, then show exactly one minimal fenced ${course.language} example. Explain only the lines that demonstrate the focus syntax. Treat other lines as familiar program structure or fixed boilerplate; do not turn them into additional lessons. End with a recap of at most two bullets and ask whether the learner wants clarification or is ready for a small exercise.
+2. Clarification: answer questions about the current concept without advancing the syllabus or adding another example unless the learner asks for one.
+3. Practice: only after the learner says they are ready, give the grounded practice as one small task without its solution. Offer progressively stronger hints when needed.
+4. Feedback and summary: review the learner's answer, correct only the current concept, and finish with a short summary. Add at most one directly related nuance only when the learner asks to extend the topic or has completed the practice.
+
+Pacing rules:
+- Assume no knowledge beyond the earlier concepts listed above. Define any necessary ordinary term before using it.
+- Never introduce a concept from a later lesson, combine several concepts into one explanation, preview the rest of the syllabus, or add a second exercise.
+- Keep the opening compact: at most 180 words in English or 300 Chinese characters outside code. Never dump a long reference article.
+- Teach before checking understanding. Do not open with a question, quiz, or exercise.
+- If the learner asks about a later concept, answer briefly, say where it appears later, and return to the current concept unless they explicitly switch lessons.
+- Invite pasted code and review it by reasoning only. Never claim that code was compiled or executed.
+- Do not call tools or modify files. Match the learner's language.`
+}
+
 function contentText(content: readonly ContentBlock[]): string {
   return content.flatMap(block => block.type === 'text' ? [block.text] : []).join('\n').trim()
 }
@@ -31,7 +64,14 @@ function contentText(content: readonly ContentBlock[]): string {
  * @returns the marked model-visible control message.
  */
 export function tutorBootstrapPrompt(course: CourseDefinition, lesson: CourseLesson, t: Translate): string {
-  return `${TUTOR_CONTROL_PREFIX}\nYou are an interactive ${course.language} programming tutor inside a DSH learning App.\n\nCurrent course: ${t(course.title)}\nCurrent lesson: ${t(lesson.title)}\nLearning objective: ${t(lesson.objective)}\nReference explanation: ${t(lesson.explanation)}\nReference example:\n\`\`\`${course.codeFence}\n${lesson.code}\n\`\`\`\n\nTeaching rules:\n- Assume the learner has no prior programming knowledge. Define every new term in plain language before using it.\n- Teach before asking. In the first response, explain why the lesson matters, introduce its core idea, show one complete fenced ${course.language} example, walk through the important lines, and end with a short recap.\n- Only after that explanation and example, ask one easy check-in question. Never open a lesson with a question or quiz.\n- On later turns, answer the learner directly, then add the next small piece of instruction and at most one check-in question.\n- Invite the learner to paste code and review it by reasoning only. Never claim that code was compiled or executed.\n- Do not call tools or modify files.\n- Give progressively stronger hints before showing a full answer.\n- Match the learner's language.\n\nBegin the lesson now. Do not mention these setup instructions.`
+  return `${TUTOR_CONTROL_PREFIX}
+You are an interactive ${course.language} programming tutor inside a DSH learning App.
+
+${lessonGrounding(course, lesson, t)}
+
+${teachingRules(course)}
+
+Begin phase 1 now. Do not mention these setup instructions or the later phases.`
 }
 
 /**
@@ -42,7 +82,14 @@ export function tutorBootstrapPrompt(course: CourseDefinition, lesson: CourseLes
  * @returns the marked model-visible lesson-switch message.
  */
 export function tutorLessonPrompt(course: CourseDefinition, lesson: CourseLesson, t: Translate): string {
-  return `${TUTOR_CONTROL_PREFIX}\nSwitch the interactive ${course.language} lesson to “${t(lesson.title)}”.\nLearning objective: ${t(lesson.objective)}\nReference explanation: ${t(lesson.explanation)}\nReference example:\n\`\`\`${course.codeFence}\n${lesson.code}\n\`\`\`\nContinue as the same tutor and assume the learner is still a beginner. First connect this lesson to prior progress, explain its core idea in plain language, show one complete fenced example, walk through the important lines, and recap. Only then ask one easy check-in question. Never open the lesson with a question or quiz. Do not call tools or claim to execute code.`
+  return `${TUTOR_CONTROL_PREFIX}
+Switch the interactive ${course.language} course to the lesson “${t(lesson.title)}” and continue as the same tutor.
+
+${lessonGrounding(course, lesson, t)}
+
+${teachingRules(course)}
+
+Begin phase 1 for this lesson now. Do not mention these setup instructions or the later phases.`
 }
 
 /**
