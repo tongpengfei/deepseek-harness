@@ -5,42 +5,36 @@ import { createCourseProgressStore } from '../src/client/progress-store.ts'
 beforeEach(() => { localStorage.clear() })
 
 describe('course progress store', () => {
-  it('records correct answers once and resets the course', () => {
+  it('records mastered lessons and resets navigation without deleting the Session', () => {
     const instance = createCourseProgressStore('hello').create()
-    instance.actions.answer('hello', 1, true)
-    instance.actions.answer('hello', 1, true)
-    expect(instance.getSnapshot()).toEqual({
-      activeLessonId: 'hello',
-      completedLessonIds: ['hello'],
-      answers: { hello: 1 },
-    })
-
+    instance.actions.completeLesson('hello')
+    instance.actions.completeLesson('hello')
     instance.actions.selectLesson('values')
-    instance.actions.answer('values', 2, false)
-    expect(instance.getSnapshot()).toMatchObject({
+    instance.actions.setTutorSession('tutor-session')
+    expect(instance.getSnapshot()).toEqual({
       activeLessonId: 'values',
       completedLessonIds: ['hello'],
-      answers: { hello: 1, values: 2 },
+      tutorSessionId: 'tutor-session',
     })
 
     instance.actions.reset('hello')
     expect(instance.getSnapshot()).toEqual({
       activeLessonId: 'hello',
       completedLessonIds: [],
-      answers: {},
     })
   })
 
-  it('rehydrates progress from browser storage', () => {
+  it('rehydrates the Tutor Session identity and progress from browser storage', () => {
     const first = createCourseProgressStore('hello').create()
-    first.actions.answer('hello', 1, true)
+    first.actions.completeLesson('hello')
     first.actions.selectLesson('values')
+    first.actions.setTutorSession('persisted-session')
 
     const restored = createCourseProgressStore('hello').create()
     expect(restored.getSnapshot()).toEqual({
       activeLessonId: 'values',
       completedLessonIds: ['hello'],
-      answers: { hello: 1 },
+      tutorSessionId: 'persisted-session',
     })
   })
 })

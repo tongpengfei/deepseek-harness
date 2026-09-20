@@ -1,6 +1,7 @@
 /** Browser registration for the C course in the shared Apps catalog. */
 
 import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type {} from '@deepseek-ai/dsh-api-session-controller/client'
 import type {} from '@deepseek-ai/dsh-client-locale/client'
 import type {} from '@deepseek-ai/dsh-client-ui-apps/client'
 import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
@@ -17,7 +18,7 @@ declare module '@deepseek-ai/dsh-client-ui-slots' {
 }
 
 /** Browser services used by the course App. */
-export const inject = ['slots', 'locale']
+export const inject = ['slots', 'locale', 'sessions']
 
 /**
  * Register the C course and its persistent learning state in the Apps catalog.
@@ -33,5 +34,6 @@ export function apply(ctx: ClientContext): void {
     label: () => ctx.locale.bind('codeLearning')('app.name'),
     locale: 'codeLearning',
     store: progress,
+    inject: () => ({ sessions: ctx.sessions }),
   }, CodeLearningApp))
 }

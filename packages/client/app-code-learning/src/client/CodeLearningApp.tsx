@@ -1,19 +1,55 @@
-/** Shared programming-course presentation, currently populated by the C course. */
+/** Conversational programming Tutor backed by one durable DSH Session. */
 
-import type { ReactNode } from 'react'
-import { Button, IconCheckOutline16, IconChevronLeftOutline14, IconChevronRightOutline14, IconRefreshOutline16 } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { PropsLocale, PropsRuntime, PropsStore } from '@deepseek-ai/dsh-client-ui-slots'
+import {
+  useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore,
+  type KeyboardEvent, type ReactNode,
+} from 'react'
+import {
+  Button, IconCheckOutline16, IconRefreshOutline16, IconSendOutline14,
+  IconSparkle16, IconStopFill16, MarkdownText, type MarkdownLabels,
+} from '@deepseek-ai/dsh-client-ui-primitives'
+import type {
+  ISessions, SessionBinding, SessionEventWindow, SessionFace, SessionSnapshot,
+} from '@deepseek-ai/dsh-api-session-controller/client'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import type { ObservableSnapshot } from '@deepseek-ai/dsh-client-store'
+import type { InjectFace, PropsLocale, PropsRuntime, PropsStore } from '@deepseek-ai/dsh-client-ui-slots'
 import type {} from '@deepseek-ai/dsh-client-ui-apps/client'
 import { cCourse } from './c-course.ts'
+import type { CourseLesson } from './course.ts'
 import type { createCourseProgressStore } from './progress-store.ts'
+import { projectTutorMessages, tutorBootstrapPrompt, tutorLessonPrompt } from './tutor-session.ts'
 import css from './CodeLearningApp.module.css'
+
+declare module '@deepseek-ai/dsh-api-session-controller/client' {
+  interface SessionReferenceSourceMap {
+    codeLearningTutor: unknown
+  }
+}
+
+/** Root services passed into the Tutor presentation. */
+export interface CodeLearningAppInjected {
+  readonly sessions: ISessions
+}
 
 /** Props assembled by the Apps Slot renderer. */
 export type CodeLearningAppProps = PropsRuntime<'apps.item'>
   & PropsLocale<'codeLearning'>
   & PropsStore<ReturnType<typeof createCourseProgressStore>>
+  & InjectFace<CodeLearningAppInjected>
 
-/** Render a catalog summary or the complete programming course. */
+function useObservable<T>(source: ObservableSnapshot<T> | undefined): T | undefined {
+  const subscribe = useCallback((listener: () => void) => source?.subscribe(listener) ?? (() => {}), [source])
+  const getSnapshot = useCallback(() => source?.getSnapshot(), [source])
+  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot)
+}
+
+async function prompt(session: SessionFace, text: string): Promise<void> {
+  const result = await session.prompt([{ type: 'text', text }], 'queue')
+  if (!result.ok) throw new Error(result.error.message)
+}
+
+/** Render a catalog summary or the complete conversational Tutor. */
 export function CodeLearningApp(props: CodeLearningAppProps): ReactNode {
   if (props.view === 'summary') {
     return (
@@ -26,18 +62,110 @@ export function CodeLearningApp(props: CodeLearningAppProps): ReactNode {
   return <CoursePage {...props} />
 }
 
-function CoursePage({ t, useStore, actions }: CodeLearningAppProps): ReactNode {
-
+function CoursePage({ t, useStore, actions, sessions }: CodeLearningAppProps): ReactNode {
   const activeLessonId = useStore(state => state.activeLessonId)
   const completedLessonIds = useStore(state => state.completedLessonIds)
-  const answers = useStore(state => state.answers)
+  const tutorSessionId = useStore(state => state.tutorSessionId)
   const lesson = cCourse.lessons.find(entry => entry.id === activeLessonId) ?? cCourse.lessons[0]
   const activeIndex = cCourse.lessons.indexOf(lesson)
-  const selectedOption = answers[lesson.id]
-  const completed = completedLessonIds.includes(lesson.id)
-  const previous = cCourse.lessons[activeIndex - 1]
-  const next = cCourse.lessons[activeIndex + 1]
+  const [binding, setBinding] = useState<SessionBinding>()
+  const [draft, setDraft] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string>()
+  const [retainRevision, setRetainRevision] = useState(0)
+  const messageEnd = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    setBinding(undefined)
+    if (tutorSessionId === undefined) return
+    let active = true
+    const reference = sessions.retain(tutorSessionId as SessionId, { source: 'codeLearningTutor' })
+    void reference.ready.then(() => {
+      if (active) {
+        setBinding(reference.binding)
+        setError(undefined)
+      }
+    }).catch((reason: unknown) => {
+      if (active) setError(reason instanceof Error ? reason.message : String(reason))
+    })
+    return () => {
+      active = false
+      reference.release()
+    }
+  }, [retainRevision, sessions, tutorSessionId])
+
+  const sessionState = useObservable<SessionSnapshot>(binding?.session)
+  const eventWindow = useObservable<SessionEventWindow>(binding?.eventSource)
+  const messages = useMemo(() => projectTutorMessages(eventWindow?.entries ?? []), [eventWindow])
+  const markdownLabels = useMemo<MarkdownLabels>(() => ({
+    code: { copyLabel: t('markdown.copy'), copiedLabel: t('markdown.copied') },
+    footnotes: t('markdown.footnotes'),
+  }), [t])
+  const running = sessionState?.running ?? false
+  const inputDisabled = busy || running || binding === undefined
   const progress = (completedLessonIds.length / cCourse.lessons.length) * 100
+
+  useEffect(() => {
+    const marker = messageEnd.current
+    if (typeof marker?.scrollIntoView === 'function') marker.scrollIntoView({ block: 'end' })
+  }, [messages, running])
+
+  const send = useCallback(async (text: string): Promise<void> => {
+    const value = text.trim()
+    if (value === '' || binding === undefined) return
+    setBusy(true)
+    setError(undefined)
+    try {
+      await prompt(binding.session, value)
+    } catch (reason: unknown) {
+      setError(reason instanceof Error ? reason.message : String(reason))
+    } finally {
+      setBusy(false)
+    }
+  }, [binding])
+
+  const startTutor = useCallback(async (): Promise<void> => {
+    setBusy(true)
+    setError(undefined)
+    try {
+      const id = tutorSessionId as SessionId | undefined ?? await sessions.create()
+      actions.setTutorSession(id)
+      await sessions.using(id, { source: 'codeLearningTutor' }, async (reference) => {
+        const rename = await reference.binding.session.rename(t('app.name'))
+        if (!rename.ok) throw new Error(rename.error.message)
+        await prompt(reference.binding.session, tutorBootstrapPrompt(cCourse, lesson, t))
+      })
+    } catch (reason: unknown) {
+      setError(reason instanceof Error ? reason.message : String(reason))
+    } finally {
+      setBusy(false)
+    }
+  }, [actions, lesson, sessions, t, tutorSessionId])
+
+  const selectLesson = useCallback((nextLesson: CourseLesson): void => {
+    if (nextLesson.id === lesson.id) return
+    actions.selectLesson(nextLesson.id)
+    if (binding !== undefined) void send(tutorLessonPrompt(cCourse, nextLesson, t))
+  }, [actions, binding, lesson.id, send, t])
+
+  const completeLesson = useCallback((): void => {
+    actions.completeLesson(lesson.id)
+    const next = cCourse.lessons[activeIndex + 1]
+    if (next !== undefined) selectLesson(next)
+  }, [actions, activeIndex, lesson.id, selectLesson])
+
+  const submitDraft = (): void => {
+    const value = draft.trim()
+    if (value === '') return
+    setDraft('')
+    void send(value)
+  }
+
+  const handleDraftKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>): void => {
+    if (event.key !== 'Enter' || event.shiftKey || event.nativeEvent.isComposing) return
+    event.preventDefault()
+    submitDraft()
+  }
 
   return (
     <div className={css.app} data-code-learning-app>
@@ -49,7 +177,7 @@ function CoursePage({ t, useStore, actions }: CodeLearningAppProps): ReactNode {
         </div>
         <Button variant="ghost" size="sm" icon={<IconRefreshOutline16 size={16} />}
           onClick={() => { actions.reset(cCourse.lessons[0].id) }}>
-          {t('course.reset')}
+          {t('course.newSession')}
         </Button>
         <div className={css.progress} aria-label={t('course.progress', {
           completed: completedLessonIds.length,
@@ -71,7 +199,7 @@ function CoursePage({ t, useStore, actions }: CodeLearningAppProps): ReactNode {
             return (
               <button key={entry.id} type="button" className={isActive ? css.outlineActive : css.outlineItem}
                 aria-current={isActive ? 'step' : undefined}
-                onClick={() => { actions.selectLesson(entry.id) }}>
+                onClick={() => { selectLesson(entry) }}>
                 <span className={css.lessonIndex}>{isComplete ? <IconCheckOutline16 size={14} /> : index + 1}</span>
                 <span>
                   <strong>{t(entry.title)}</strong>
@@ -85,62 +213,106 @@ function CoursePage({ t, useStore, actions }: CodeLearningAppProps): ReactNode {
           })}
         </nav>
 
-        <main className={css.lesson}>
-          <p className={css.lessonNumber}>{t('lesson.number', {
-            current: activeIndex + 1,
-            total: cCourse.lessons.length,
-          })}</p>
-          <h3>{t(lesson.title)}</h3>
-
-          <section className={css.goal}>
-            <h4>{t('lesson.objective')}</h4>
-            <p>{t(lesson.objective)}</p>
-          </section>
-
-          <p className={css.explanation}>{t(lesson.explanation)}</p>
-
-          <section className={css.codeSection}>
-            <h4>{t('lesson.example')}</h4>
-            <pre><code>{lesson.code}</code></pre>
-          </section>
-
-          <section className={css.challenge}>
-            <h4>{t('lesson.challenge')}</h4>
-            <p>{t(lesson.challenge)}</p>
-            <div className={css.options}>
-              {lesson.options.map((option, index) => {
-                const selected = selectedOption === index
-                const correct = index === lesson.correctOption
-                const className = selected ? correct ? css.optionCorrect : css.optionIncorrect : css.option
-                return (
-                  <button key={option.label} type="button" className={className}
-                    aria-pressed={selected}
-                    onClick={() => { actions.answer(lesson.id, index, correct) }}>
-                    <span>{String.fromCharCode(65 + index)}</span>
-                    {t(option.label)}
-                  </button>
-                )
-              })}
+        <main className={css.tutor}>
+          <header className={css.lessonHeader}>
+            <div>
+              <p>{t('lesson.number', { current: activeIndex + 1, total: cCourse.lessons.length })}</p>
+              <h3>{t(lesson.title)}</h3>
+              <span>{t(lesson.objective)}</span>
             </div>
-            {selectedOption !== undefined && (
-              <div className={completed ? css.feedbackCorrect : css.feedbackIncorrect} role="status">
-                <strong>{completed ? t('lesson.correct') : t('lesson.incorrect')}</strong>
-                <span>{t(completed ? lesson.correctFeedback : lesson.incorrectFeedback)}</span>
-              </div>
+            {binding !== undefined && (
+              <Button variant="outline" size="sm" onClick={completeLesson}>
+                {activeIndex + 1 === cCourse.lessons.length
+                  ? t('lesson.courseComplete')
+                  : completedLessonIds.includes(lesson.id)
+                    ? t('lesson.markComplete')
+                    : t('lesson.completeAndNext')}
+              </Button>
             )}
-          </section>
+          </header>
 
-          <footer className={css.navigation}>
-            <Button variant="outline" icon={<IconChevronLeftOutline14 size={14} />} disabled={previous === undefined}
-              onClick={previous === undefined ? undefined : () => { actions.selectLesson(previous.id) }}>
-              {t('lesson.previous')}
-            </Button>
-            <Button variant="primary" disabled={!completed || next === undefined}
-              onClick={next === undefined ? undefined : () => { actions.selectLesson(next.id) }}>
-              {next === undefined ? t('lesson.finish') : t('lesson.next')}
-              {next !== undefined && <IconChevronRightOutline14 size={14} />}
-            </Button>
-          </footer>
+          {tutorSessionId === undefined
+            ? (
+              <section className={css.onboarding}>
+                <IconSparkle16 size={24} />
+                <h4>{t('tutor.startTitle')}</h4>
+                <p>{t('tutor.startDescription')}</p>
+                <Button variant="primary" disabled={busy} onClick={() => { void startTutor() }}>
+                  {t('tutor.start')}
+                </Button>
+                {error !== undefined && (
+                  <div className={css.error} role="alert">
+                    <span>{t('tutor.error', { message: error })}</span>
+                  </div>
+                )}
+              </section>
+            )
+            : binding === undefined && error === undefined
+              ? <div className={css.centerStatus} role="status">{t('tutor.restoring')}</div>
+              : (
+                <>
+                  <section className={css.messages} aria-live="polite">
+                    {messages.length === 0 && !running && (
+                      <div className={css.emptyConversation}>
+                        <p>{t('tutor.empty')}</p>
+                        <Button variant="primary" disabled={busy} onClick={() => { void startTutor() }}>
+                          {t('tutor.start')}
+                        </Button>
+                      </div>
+                    )}
+                    {messages.map(message => (
+                      <article key={message.key} className={message.role === 'tutor' ? css.tutorMessage : css.learnerMessage}>
+                        <strong>{t(message.role === 'tutor' ? 'tutor.name' : 'tutor.you')}</strong>
+                        <MarkdownText text={message.text} streaming={message.streaming} labels={markdownLabels} />
+                      </article>
+                    ))}
+                    {running && messages.every(message => !message.streaming) && (
+                      <div className={css.thinking} role="status">{t('tutor.thinking')}</div>
+                    )}
+                    <div ref={messageEnd} />
+                  </section>
+
+                  {error !== undefined && (
+                    <div className={css.error} role="alert">
+                      <span>{t('tutor.error', { message: error })}</span>
+                      <Button variant="ghost" size="sm" onClick={() => { setRetainRevision(value => value + 1) }}>
+                        {t('tutor.retry')}
+                      </Button>
+                    </div>
+                  )}
+
+                  <div className={css.quickActions}>
+                    {(['tutor.quickExample', 'tutor.quickExplain', 'tutor.quickExercise', 'tutor.quickSummary'] as const)
+                      .map(key => (
+                        <button key={key} type="button" disabled={inputDisabled} onClick={() => { void send(t(key)) }}>
+                          {t(key)}
+                        </button>
+                      ))}
+                  </div>
+
+                  <footer className={css.composer}>
+                    <textarea value={draft} disabled={inputDisabled} aria-label={t('tutor.placeholder')}
+                      placeholder={t('tutor.placeholder')} rows={3}
+                      onChange={(event) => { setDraft(event.currentTarget.value) }} onKeyDown={handleDraftKeyDown} />
+                    <div className={css.composerFooter}>
+                      <span>{t('tutor.reviewNotice')}</span>
+                      {running
+                        ? (
+                          <Button variant="outline" size="sm" icon={<IconStopFill16 size={16} />}
+                            onClick={() => { void binding?.session.cancel() }}>
+                            {t('tutor.stop')}
+                          </Button>
+                        )
+                        : (
+                          <Button variant="primary" size="sm" icon={<IconSendOutline14 size={14} />}
+                            disabled={inputDisabled || draft.trim() === ''} onClick={submitDraft}>
+                            {t('tutor.send')}
+                          </Button>
+                        )}
+                    </div>
+                  </footer>
+                </>
+              )}
         </main>
       </div>
     </div>

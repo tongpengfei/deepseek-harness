@@ -27,7 +27,7 @@ kind: "package-group"
 | 包 | 职责 | ctx 键 |
 |---|---|---|
 | [`web/`](web/README.zh.md) | 启动浏览器外壳 | — |
-| [`app-code-learning/`](app-code-learning/README.zh.md) | 通过可复用的编程课程流程教授 C | — |
+| [`app-code-learning/`](app-code-learning/README.zh.md) | 通过可复用的对话式 AI 导师流程教授 C | — |
 | [`modules/`](modules/README.zh.md) | 加载浏览器侧客户端模块 | `ctx.clientModules` / `ctx.modules` |
 | [`connection/`](connection/README.zh.md) | 维护浏览器与宿主之间的 RPC 通信与事件投递 | `ctx.connection` |
 | [`file-upload/`](file-upload/README.zh.md) | 在页面线程之外发送原始 Blob 与字节流请求体 | `ctx.fileUpload` |

@@ -16,6 +16,7 @@ describe('code-learning App composition', () => {
     expect(resolveSlotLabel(entry?.options.label)).toBe('Learn C')
     expect(entry?.locale).toBe('codeLearning')
     expect(entry?.store).toBeDefined()
+    expect((entry?.inject as (() => { sessions: unknown }))().sessions).toBe(client.ctx.sessions)
   }, 60_000)
 
   test('keeps the Host Loader entry inert', () => {

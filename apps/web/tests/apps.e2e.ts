@@ -1,5 +1,5 @@
-// Web e2e scenario for the shipped Apps catalog and C course. It uses no model
-// fixture: both views are client composition and a stray stream fails loud.
+// Web e2e scenario for the shipped Apps catalog and C Tutor onboarding. It uses
+// no model fixture: both views are client composition and a stray stream fails loud.
 import { fileURLToPath } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
@@ -47,11 +47,9 @@ describe('web e2e: Apps catalog', () => {
 
     await app.click()
     const course = page.locator('[data-code-learning-app]')
-    await course.getByRole('heading', { name: '程序从 main 开始' }).waitFor({ timeout: 10_000 })
+    await course.getByRole('heading', { name: '和 AI 导师一起开始' }).waitFor({ timeout: 10_000 })
     const lessonSnapshot = await captureStableAria(page, '[data-code-learning-app]', scaffold.workspaceCwd)
     await compareOrRefreshGolden(C_LESSON_EXPECTED, lessonSnapshot, MODE)
-    await course.getByRole('button', { name: /#include <stdio.h>/ }).click()
-    await course.getByRole('status').getByText('回答正确').waitFor()
     expect(tripwire.pageErrors).toEqual([])
   }, 60_000)
 

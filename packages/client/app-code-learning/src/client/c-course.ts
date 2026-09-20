@@ -1,10 +1,12 @@
-/** C course content for the language-independent learning flow. */
+/** C curriculum grounding for the language-independent conversational Tutor. */
 
 import type { CourseDefinition } from './course.ts'
 
 /** Introductory C path from program structure through pointers. */
 export const cCourse: CourseDefinition = {
   id: 'c-foundations',
+  language: 'C',
+  codeFence: 'c',
   title: 'course.title',
   description: 'course.description',
   lessons: [
@@ -14,15 +16,6 @@ export const cCourse: CourseDefinition = {
       objective: 'lesson.hello.objective',
       explanation: 'lesson.hello.explanation',
       code: '#include <stdio.h>\n\nint main(void) {\n  printf("Hello, C!\\n");\n  return 0;\n}',
-      challenge: 'lesson.hello.challenge',
-      options: [
-        { label: 'lesson.hello.optionA' },
-        { label: 'lesson.hello.optionB' },
-        { label: 'lesson.hello.optionC' },
-      ],
-      correctOption: 1,
-      correctFeedback: 'lesson.hello.correct',
-      incorrectFeedback: 'lesson.hello.incorrect',
     },
     {
       id: 'values',
@@ -30,15 +23,6 @@ export const cCourse: CourseDefinition = {
       objective: 'lesson.values.objective',
       explanation: 'lesson.values.explanation',
       code: 'int age = 18;\ndouble score = 92.5;\nchar grade = \'A\';\n\nprintf("%d %.1f %c\\n", age, score, grade);',
-      challenge: 'lesson.values.challenge',
-      options: [
-        { label: 'lesson.values.optionA' },
-        { label: 'lesson.values.optionB' },
-        { label: 'lesson.values.optionC' },
-      ],
-      correctOption: 0,
-      correctFeedback: 'lesson.values.correct',
-      incorrectFeedback: 'lesson.values.incorrect',
     },
     {
       id: 'control',
@@ -46,15 +30,6 @@ export const cCourse: CourseDefinition = {
       objective: 'lesson.control.objective',
       explanation: 'lesson.control.explanation',
       code: 'for (int i = 1; i <= 3; i++) {\n  if (i % 2 == 0) {\n    printf("even\\n");\n  } else {\n    printf("odd\\n");\n  }\n}',
-      challenge: 'lesson.control.challenge',
-      options: [
-        { label: 'lesson.control.optionA' },
-        { label: 'lesson.control.optionB' },
-        { label: 'lesson.control.optionC' },
-      ],
-      correctOption: 2,
-      correctFeedback: 'lesson.control.correct',
-      incorrectFeedback: 'lesson.control.incorrect',
     },
     {
       id: 'functions',
@@ -62,15 +37,6 @@ export const cCourse: CourseDefinition = {
       objective: 'lesson.functions.objective',
       explanation: 'lesson.functions.explanation',
       code: 'int square(int value) {\n  return value * value;\n}\n\nint main(void) {\n  printf("%d\\n", square(6));\n  return 0;\n}',
-      challenge: 'lesson.functions.challenge',
-      options: [
-        { label: 'lesson.functions.optionA' },
-        { label: 'lesson.functions.optionB' },
-        { label: 'lesson.functions.optionC' },
-      ],
-      correctOption: 1,
-      correctFeedback: 'lesson.functions.correct',
-      incorrectFeedback: 'lesson.functions.incorrect',
     },
     {
       id: 'arrays',
@@ -78,15 +44,6 @@ export const cCourse: CourseDefinition = {
       objective: 'lesson.arrays.objective',
       explanation: 'lesson.arrays.explanation',
       code: 'int scores[] = {88, 91, 95};\nint total = 0;\n\nfor (int i = 0; i < 3; i++) {\n  total += scores[i];\n}\n\nprintf("%d\\n", total);',
-      challenge: 'lesson.arrays.challenge',
-      options: [
-        { label: 'lesson.arrays.optionA' },
-        { label: 'lesson.arrays.optionB' },
-        { label: 'lesson.arrays.optionC' },
-      ],
-      correctOption: 0,
-      correctFeedback: 'lesson.arrays.correct',
-      incorrectFeedback: 'lesson.arrays.incorrect',
     },
     {
       id: 'pointers',
@@ -94,15 +51,6 @@ export const cCourse: CourseDefinition = {
       objective: 'lesson.pointers.objective',
       explanation: 'lesson.pointers.explanation',
       code: 'int value = 42;\nint *pointer = &value;\n\nprintf("%d\\n", *pointer);\n*pointer = 7;\nprintf("%d\\n", value);',
-      challenge: 'lesson.pointers.challenge',
-      options: [
-        { label: 'lesson.pointers.optionA' },
-        { label: 'lesson.pointers.optionB' },
-        { label: 'lesson.pointers.optionC' },
-      ],
-      correctOption: 2,
-      correctFeedback: 'lesson.pointers.correct',
-      incorrectFeedback: 'lesson.pointers.incorrect',
     },
   ],
 }

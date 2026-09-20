@@ -1,22 +1,23 @@
-/** Persistent progress for the shared programming-course flow. */
+/** Persistent navigation and Session identity for the conversational Tutor. */
 
 import { defineStore, type EngineStoreHandle } from '@deepseek-ai/dsh-client-store'
 
-/** Browser-local learning state for one course catalog. */
+/** Browser-local learning state; conversation messages remain in the DSH Session log. */
 export interface CourseProgressState {
   activeLessonId: string
   completedLessonIds: string[]
-  answers: Record<string, number>
+  tutorSessionId?: string
 }
 
 type CourseProgressActions = {
   selectLesson: (draft: CourseProgressState, lessonId: string) => void
-  answer: (draft: CourseProgressState, lessonId: string, option: number, correct: boolean) => void
+  completeLesson: (draft: CourseProgressState, lessonId: string) => void
+  setTutorSession: (draft: CourseProgressState, sessionId: string) => void
   reset: (draft: CourseProgressState, firstLessonId: string) => void
 }
 
 /**
- * Declare browser-local course progress that survives App remounts and page refreshes.
+ * Declare browser-local Tutor navigation that survives App remounts and page refreshes.
  * @param firstLessonId - initial lesson for a learner without saved progress.
  * @returns a root-scoped persistent store handle owned by the App registration.
  */
@@ -25,19 +26,18 @@ export function createCourseProgressStore(firstLessonId: string): EngineStoreHan
     init: (): CourseProgressState => ({
       activeLessonId: firstLessonId,
       completedLessonIds: [],
-      answers: {},
     }),
-    persist: 'dsh.app.code-learning.v1',
+    persist: 'dsh.app.code-learning.v2',
     actions: {
       selectLesson: (draft, lessonId) => { draft.activeLessonId = lessonId },
-      answer: (draft, lessonId, option, correct) => {
-        draft.answers[lessonId] = option
-        if (correct && !draft.completedLessonIds.includes(lessonId)) draft.completedLessonIds.push(lessonId)
+      completeLesson: (draft, lessonId) => {
+        if (!draft.completedLessonIds.includes(lessonId)) draft.completedLessonIds.push(lessonId)
       },
+      setTutorSession: (draft, sessionId) => { draft.tutorSessionId = sessionId },
       reset: (draft, firstLessonId) => {
         draft.activeLessonId = firstLessonId
         draft.completedLessonIds = []
-        draft.answers = {}
+        delete draft.tutorSessionId
       },
     },
   })

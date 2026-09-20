@@ -1,15 +1,15 @@
 - paragraph: C
 - heading "C 语言基础" [level=2]
-- paragraph: 沿着一条可完成的学习路径理解 C 的核心语法与内存模型。
-- button "重置进度":
+- paragraph: 与 AI 导师持续对话，从第一段程序逐步理解 C 的核心语法与内存模型。
+- button "开始新的学习对话":
   - img
-  - text: 重置进度
-- text: 已完成 0/6
+  - text: 开始新的学习对话
+- text: 已掌握 0/6
 - navigation "课程目录":
-  - button "1 程序从 main 开始 当前":
+  - button "1 程序从 main 开始 正在学习":
     - text: "1"
     - strong: 程序从 main 开始
-    - text: 当前
+    - text: 正在学习
   - button "2 变量与基本类型 第 2 课，共 6 课":
     - text: "2"
     - strong: 变量与基本类型
@@ -33,19 +33,8 @@
 - main:
   - paragraph: 第 1 课，共 6 课
   - heading "程序从 main 开始" [level=3]
-  - heading "本课目标" [level=4]
-  - paragraph: 认识 C 程序结构，并输出第一行文字。
-  - paragraph: 每个可执行 C 程序都从 main 函数进入。stdio.h 声明输入输出函数，printf 把格式化文本写到终端，return 0 表示程序正常结束。
-  - heading "代码示例" [level=4]
-  - code: "#include <stdio.h> int main(void) { printf(\"Hello, C!\\n\"); return 0; }"
-  - heading "检查理解" [level=4]
-  - paragraph: 哪一行让 printf 的声明对编译器可见？
-  - button "A return 0;"
-  - 'button "B #include <stdio.h>"'
-  - button "C int main(void)"
-  - button "上一课" [disabled]:
-    - img
-    - text: 上一课
-  - button "下一课" [disabled]:
-    - text: 下一课
-    - img
+  - text: 认识 C 程序结构，并输出第一行文字。
+  - img
+  - heading "和 AI 导师一起开始" [level=4]
+  - paragraph: 导师会围绕当前课程逐步讲解、展示完整代码并通过追问确认理解。你可以随时提问或粘贴代码。
+  - button "开始第一课"
