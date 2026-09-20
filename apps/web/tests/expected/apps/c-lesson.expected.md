@@ -2,6 +2,8 @@
   - paragraph: C
   - heading "C 语言基础" [level=2]
   - paragraph: 从程序入口开始，循序渐进学会 C 的核心语法和用法。
+  - button "收起课程目录":
+    - img
   - text: 已掌握 0/22
   - button "开始新的学习对话":
     - img
@@ -95,6 +97,7 @@
       - text: "22"
       - strong: 通过指针修改值
       - text: 第 22 课，共 22 课
+- separator "调整课程目录宽度"
 - main:
   - paragraph: 第 1 课，共 22 课
   - heading "程序从 main 开始" [level=3]

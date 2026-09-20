@@ -185,6 +185,43 @@ describe('CodeLearningApp', () => {
     expect(harness.promptCall).not.toHaveBeenCalled()
   })
 
+  it('resizes, collapses, and restores the course outline', () => {
+    const harness = tutorHarness()
+    const view = render(<CodeLearningApp {...props('page', harness.sessions)} />)
+    const root = view.container.querySelector<HTMLElement>('[data-code-learning-app]')!
+    Object.defineProperty(root, 'getBoundingClientRect', {
+      configurable: true,
+      value: () => ({ width: 1000 }) as DOMRect,
+    })
+    const separator = screen.getByRole('separator', { name: 'Resize course outline' })
+
+    fireEvent.pointerDown(separator, { button: 0, clientX: 270, pointerId: 7 })
+    fireEvent.pointerMove(window, { clientX: 370, pointerId: 7 })
+    expect(separator.getAttribute('aria-valuenow')).toBe('370')
+    fireEvent.pointerUp(window, { pointerId: 7 })
+
+    fireEvent.keyDown(separator, { key: 'ArrowRight' })
+    expect(separator.getAttribute('aria-valuenow')).toBe('386')
+    expect(JSON.parse(localStorage.getItem('dsh.app.code-learning.layout.v1') ?? '{}')).toMatchObject({
+      sidebarWidth: 386,
+      collapsed: false,
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Hide course outline' }))
+    expect(screen.getByRole('button', { name: 'Show course outline' })).toBeTruthy()
+    expect(JSON.parse(localStorage.getItem('dsh.app.code-learning.layout.v1') ?? '{}')).toMatchObject({
+      sidebarWidth: 386,
+      collapsed: true,
+    })
+
+    cleanup()
+    render(<CodeLearningApp {...props('page', harness.sessions)} />)
+    expect(screen.getByRole('button', { name: 'Show course outline' })).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Show course outline' }))
+    expect(screen.getByRole('button', { name: 'Hide course outline' })).toBeTruthy()
+    expect(screen.getByRole('separator', { name: 'Resize course outline' }).getAttribute('aria-valuenow')).toBe('386')
+  })
+
   it('continues the Tutor conversation, switches lessons, and records progress', async () => {
     const harness = tutorHarness()
     const appProps = props('page', harness.sessions)

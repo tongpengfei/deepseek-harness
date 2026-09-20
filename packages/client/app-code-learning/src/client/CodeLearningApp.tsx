@@ -2,11 +2,11 @@
 
 import {
   useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore,
-  type KeyboardEvent, type ReactNode,
+  type CSSProperties, type KeyboardEvent, type PointerEvent as ReactPointerEvent, type ReactNode,
 } from 'react'
 import {
   Button, IconCheckOutline16, IconRefreshOutline16, IconSendOutline14,
-  IconSparkle16, IconStopFill16, MarkdownText, type MarkdownLabels,
+  IconPanelLeftOutline16, IconSparkle16, IconStopFill16, MarkdownText, type MarkdownLabels,
 } from '@deepseek-ai/dsh-client-ui-primitives'
 import type {
   ISessions, SessionBinding, SessionEventWindow, SessionFace, SessionSnapshot,
@@ -38,6 +38,46 @@ export type CodeLearningAppProps = PropsRuntime<'apps.item'>
   & PropsStore<ReturnType<typeof createCourseProgressStore>>
   & InjectFace<CodeLearningAppInjected>
 
+const COURSE_LAYOUT_KEY = 'dsh.app.code-learning.layout.v1'
+const DEFAULT_SIDEBAR_WIDTH = 270
+const MIN_SIDEBAR_WIDTH = 220
+const MAX_SIDEBAR_WIDTH = 480
+const MIN_TUTOR_WIDTH = 360
+const RESIZE_TRACK_WIDTH = 16
+
+interface CourseLayoutPreference {
+  readonly sidebarWidth: number
+  readonly collapsed: boolean
+}
+
+function clampSidebarWidth(width: number, available = MAX_SIDEBAR_WIDTH): number {
+  return Math.min(Math.max(MIN_SIDEBAR_WIDTH, width), Math.max(MIN_SIDEBAR_WIDTH, available))
+}
+
+function readCourseLayout(): CourseLayoutPreference {
+  try {
+    const stored = JSON.parse(localStorage.getItem(COURSE_LAYOUT_KEY) ?? 'null') as unknown
+    if (typeof stored === 'object' && stored !== null && 'sidebarWidth' in stored && 'collapsed' in stored
+      && typeof stored.sidebarWidth === 'number' && Number.isFinite(stored.sidebarWidth)
+      && typeof stored.collapsed === 'boolean') {
+      return { sidebarWidth: clampSidebarWidth(stored.sidebarWidth), collapsed: stored.collapsed }
+    }
+  } catch (error) {
+    // Storage can be unavailable or contain an older invalid value; the default layout remains usable.
+    void error
+  }
+  return { sidebarWidth: DEFAULT_SIDEBAR_WIDTH, collapsed: false }
+}
+
+function writeCourseLayout(preference: CourseLayoutPreference): void {
+  try {
+    localStorage.setItem(COURSE_LAYOUT_KEY, JSON.stringify(preference))
+  } catch (error) {
+    // A storage failure must not disable resizing for the current page.
+    void error
+  }
+}
+
 function useObservable<T>(source: ObservableSnapshot<T> | undefined): T | undefined {
   const subscribe = useCallback((listener: () => void) => source?.subscribe(listener) ?? (() => {}), [source])
   const getSnapshot = useCallback(() => source?.getSnapshot(), [source])
@@ -68,12 +108,18 @@ function CoursePage({ t, useStore, actions, sessions }: CodeLearningAppProps): R
   const tutorSessionId = useStore(state => state.tutorSessionId)
   const lesson = cCourse.lessons.find(entry => entry.id === activeLessonId) ?? cCourse.lessons[0]
   const activeIndex = cCourse.lessons.indexOf(lesson)
+  const [initialLayout] = useState(readCourseLayout)
   const [binding, setBinding] = useState<SessionBinding>()
   const [draft, setDraft] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string>()
   const [retainRevision, setRetainRevision] = useState(0)
+  const [sidebarWidth, setSidebarWidth] = useState(initialLayout.sidebarWidth)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(initialLayout.collapsed)
+  const [resizingSidebar, setResizingSidebar] = useState(false)
+  const appRoot = useRef<HTMLDivElement>(null)
   const messageEnd = useRef<HTMLDivElement>(null)
+  const resizeStart = useRef<{ pointerId: number; clientX: number; width: number }>()
 
   useEffect(() => {
     setBinding(undefined)
@@ -104,6 +150,42 @@ function CoursePage({ t, useStore, actions, sessions }: CodeLearningAppProps): R
   const running = sessionState?.running ?? false
   const inputDisabled = busy || running || binding === undefined
   const progress = (completedLessonIds.length / cCourse.lessons.length) * 100
+
+  useEffect(() => {
+    writeCourseLayout({ sidebarWidth, collapsed: sidebarCollapsed })
+  }, [sidebarCollapsed, sidebarWidth])
+
+  const availableSidebarWidth = useCallback((): number => {
+    const rootWidth = appRoot.current?.getBoundingClientRect().width ?? 0
+    if (rootWidth <= 0) return MAX_SIDEBAR_WIDTH
+    return Math.min(MAX_SIDEBAR_WIDTH, rootWidth - MIN_TUTOR_WIDTH - RESIZE_TRACK_WIDTH)
+  }, [])
+
+  const setClampedSidebarWidth = useCallback((width: number): void => {
+    setSidebarWidth(clampSidebarWidth(width, availableSidebarWidth()))
+  }, [availableSidebarWidth])
+
+  useEffect(() => {
+    if (!resizingSidebar) return
+    const move = (event: PointerEvent): void => {
+      const start = resizeStart.current
+      if (start === undefined || event.pointerId !== start.pointerId) return
+      setClampedSidebarWidth(start.width + event.clientX - start.clientX)
+    }
+    const finish = (event: PointerEvent): void => {
+      if (event.pointerId !== resizeStart.current?.pointerId) return
+      resizeStart.current = undefined
+      setResizingSidebar(false)
+    }
+    window.addEventListener('pointermove', move)
+    window.addEventListener('pointerup', finish)
+    window.addEventListener('pointercancel', finish)
+    return () => {
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('pointerup', finish)
+      window.removeEventListener('pointercancel', finish)
+    }
+  }, [resizingSidebar, setClampedSidebarWidth])
 
   useEffect(() => {
     const marker = messageEnd.current
@@ -167,16 +249,40 @@ function CoursePage({ t, useStore, actions, sessions }: CodeLearningAppProps): R
     submitDraft()
   }
 
+  const beginSidebarResize = (event: ReactPointerEvent<HTMLDivElement>): void => {
+    if (event.button !== 0) return
+    event.preventDefault()
+    resizeStart.current = { pointerId: event.pointerId, clientX: event.clientX, width: sidebarWidth }
+    setResizingSidebar(true)
+  }
+
+  const handleSidebarResizeKey = (event: KeyboardEvent<HTMLDivElement>): void => {
+    let width: number | undefined
+    if (event.key === 'ArrowLeft') width = sidebarWidth - 16
+    if (event.key === 'ArrowRight') width = sidebarWidth + 16
+    if (event.key === 'Home') width = MIN_SIDEBAR_WIDTH
+    if (event.key === 'End') width = availableSidebarWidth()
+    if (width === undefined) return
+    event.preventDefault()
+    setClampedSidebarWidth(width)
+  }
+
   return (
-    <div className={css.app} data-code-learning-app>
-      <aside className={css.courseSidebar}>
+    <div ref={appRoot} className={`${css.app}${sidebarCollapsed ? ` ${css.appCollapsed}` : ''}`}
+      data-code-learning-app data-resizing={resizingSidebar || undefined}
+      style={{ '--course-sidebar-width': `${String(sidebarWidth)}px` } as CSSProperties}>
+      <aside className={css.courseSidebar} aria-hidden={sidebarCollapsed || undefined}>
         <header className={css.hero}>
           <div className={css.courseIdentity}>
             <p className={css.kicker}>{t('course.badge')}</p>
-            <div>
+            <div className={css.courseHeading}>
               <h2>{t(cCourse.title)}</h2>
               <p>{t(cCourse.description)}</p>
             </div>
+            <button type="button" className={css.sidebarToggle} aria-label={t('course.hideOutline')}
+              title={t('course.hideOutline')} onClick={() => { setSidebarCollapsed(true) }}>
+              <IconPanelLeftOutline16 size={16} />
+            </button>
           </div>
           <div className={css.progressRow}>
             <span>{t('course.progress', {
@@ -217,6 +323,18 @@ function CoursePage({ t, useStore, actions, sessions }: CodeLearningAppProps): R
           })}
         </nav>
       </aside>
+
+      <div className={css.resizeHandle} role="separator" aria-orientation="vertical"
+        aria-label={t('course.resizeOutline')} aria-valuemin={MIN_SIDEBAR_WIDTH}
+        aria-valuemax={MAX_SIDEBAR_WIDTH} aria-valuenow={Math.round(sidebarWidth)} tabIndex={0}
+        onPointerDown={beginSidebarResize} onKeyDown={handleSidebarResizeKey} />
+
+      <div className={css.collapsedRail}>
+        <button type="button" aria-label={t('course.showOutline')} title={t('course.showOutline')}
+          onClick={() => { setSidebarCollapsed(false) }}>
+          <IconPanelLeftOutline16 size={16} />
+        </button>
+      </div>
 
       <main className={css.tutor}>
         <header className={css.lessonHeader}>

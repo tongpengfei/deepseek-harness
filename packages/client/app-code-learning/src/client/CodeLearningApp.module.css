@@ -15,9 +15,18 @@
   box-sizing: border-box;
   height: 100%;
   min-height: 0;
-  grid-template-columns: minmax(220px, 270px) minmax(0, 1fr);
-  gap: 16px;
+  grid-template-columns: var(--course-sidebar-width, 270px) 16px minmax(0, 1fr);
   color: var(--dsw-alias-label-primary);
+}
+
+.appCollapsed {
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 8px;
+}
+
+.app[data-resizing] {
+  cursor: col-resize;
+  user-select: none;
 }
 
 .courseSidebar {
@@ -43,6 +52,85 @@
   display: flex;
   align-items: flex-start;
   gap: 11px;
+}
+
+.courseHeading {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.sidebarToggle,
+.collapsedRail button {
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--dsw-alias-label-secondary);
+  cursor: pointer;
+}
+
+.sidebarToggle:hover,
+.sidebarToggle:focus-visible,
+.collapsedRail button:hover,
+.collapsedRail button:focus-visible {
+  outline: none;
+  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--dsw-alias-label-primary);
+}
+
+.resizeHandle {
+  position: relative;
+  min-width: 0;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.resizeHandle::before {
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 7px;
+  width: 2px;
+  border-radius: 999px;
+  background: var(--dsw-alias-border-l2);
+  content: '';
+  transition: background 120ms ease;
+}
+
+.resizeHandle:hover::before,
+.resizeHandle:focus-visible::before,
+.app[data-resizing] .resizeHandle::before {
+  background: var(--dsw-alias-brand-primary);
+}
+
+.resizeHandle:focus-visible {
+  outline: none;
+}
+
+.collapsedRail {
+  display: none;
+  min-height: 0;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 14px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 12px;
+  background: var(--dsw-alias-bg-l1);
+}
+
+.appCollapsed .courseSidebar,
+.appCollapsed .resizeHandle {
+  display: none;
+}
+
+.appCollapsed .collapsedRail {
+  display: flex;
 }
 
 .hero h2 {
@@ -391,13 +479,25 @@
 }
 
 @media (max-width: 760px) {
-  .app {
+  .app,
+  .appCollapsed {
     height: auto;
     grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .appCollapsed .courseSidebar {
+    display: flex;
   }
 
   .courseSidebar {
     overflow: visible;
+  }
+
+  .sidebarToggle,
+  .resizeHandle,
+  .appCollapsed .collapsedRail {
+    display: none;
   }
 
   .outline {
