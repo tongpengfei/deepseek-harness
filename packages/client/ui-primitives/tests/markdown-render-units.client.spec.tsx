@@ -20,6 +20,7 @@ afterEach(cleanup)
 function makeContext(): MarkdownRenderContext {
   return {
     streaming: false,
+    codeLineNumbers: false,
     labels: markdownLabels,
     fileMentions: undefined,
     pathImages: undefined,

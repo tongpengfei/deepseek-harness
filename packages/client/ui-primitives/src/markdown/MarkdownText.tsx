@@ -32,12 +32,14 @@ function renderSettled(
   labels: MarkdownLabels,
   fileMentions: MarkdownFileMentions | undefined,
   pathImages: MarkdownPathImages | undefined,
+  codeLineNumbers: boolean,
 ): ReactNode[] {
   const root = parseGfmWithMath(text)
   const targets = createReferenceTargets()
   collectReferenceTargets(root.children, targets)
   const context: MarkdownRenderContext = {
     streaming: false,
+    codeLineNumbers,
     labels,
     fileMentions,
     pathImages,
@@ -75,7 +77,7 @@ class StreamingRenderer {
   private lastRendered: ReactNode[] = []
 
   /** @param labels - Localized Markdown chrome baked into cached elements; the owner replaces the renderer when it changes. */
-  constructor(private readonly labels: MarkdownLabels) {}
+  constructor(private readonly labels: MarkdownLabels, private readonly codeLineNumbers: boolean) {}
 
   /**
    * Render the current accumulated text. Idempotent per text value, so React
@@ -107,6 +109,7 @@ class StreamingRenderer {
     if (newlyFrozen.length > 0) {
       const frozenContext: MarkdownRenderContext = {
         streaming: true,
+        codeLineNumbers: this.codeLineNumbers,
         labels: this.labels,
         fileMentions: undefined,
         pathImages: undefined,
@@ -126,6 +129,7 @@ class StreamingRenderer {
     }
     const tailContext: MarkdownRenderContext = {
       streaming: true,
+      codeLineNumbers: this.codeLineNumbers,
       labels: this.labels,
       fileMentions: undefined,
       pathImages: undefined,
@@ -154,7 +158,8 @@ class StreamingRenderer {
  * until the finalize swap so incomplete formulae never flash errors);
  * `labels` forwards localized fence and footnote chrome — pass a
  * reference-stable object (memoized per locale revision), because a new
- * identity discards the streaming render cache mid-message. `fileMentions`
+ * identity discards the streaming render cache mid-message. `codeLineNumbers`
+ * adds a visual gutter to fenced code while copied source stays unchanged. `fileMentions`
  * links inline-code tokens its resolver recognizes as real files, and
  * `pathImages` rewrites image destinations that are local file paths into
  * displayable URLs its resolver vouches for. Those two vocabularies are the
@@ -172,7 +177,7 @@ class StreamingRenderer {
  * absolute HTTP(S) images render directly.
  */
 export const MarkdownText = memo(function MarkdownText({
-  text, streaming = false, labels, fileMentions, pathImages, variant = 'body',
+  text, streaming = false, labels, fileMentions, pathImages, variant = 'body', codeLineNumbers = false,
 }: {
   text: string
   streaming?: boolean
@@ -180,20 +185,25 @@ export const MarkdownText = memo(function MarkdownText({
   fileMentions?: MarkdownFileMentions | undefined
   pathImages?: MarkdownPathImages | undefined
   variant?: 'body' | 'compact'
+  /** Show a numbered gutter on fenced code without changing copied source. */
+  codeLineNumbers?: boolean | undefined
 }) {
   const streamRef = useRef<StreamingRenderer | null>(null)
   const streamLabelsRef = useRef<MarkdownLabels>(labels)
+  const streamCodeLineNumbersRef = useRef(codeLineNumbers)
   const children = useMemo(() => {
     if (!streaming) {
       streamRef.current = null
-      return renderSettled(text, labels, fileMentions, pathImages)
+      return renderSettled(text, labels, fileMentions, pathImages, codeLineNumbers)
     }
-    if (streamRef.current === null || streamLabelsRef.current !== labels) {
-      streamRef.current = new StreamingRenderer(labels)
+    if (streamRef.current === null || streamLabelsRef.current !== labels
+      || streamCodeLineNumbersRef.current !== codeLineNumbers) {
+      streamRef.current = new StreamingRenderer(labels, codeLineNumbers)
       streamLabelsRef.current = labels
+      streamCodeLineNumbersRef.current = codeLineNumbers
     }
     return streamRef.current.render(text)
-  }, [text, streaming, labels, fileMentions, pathImages])
+  }, [text, streaming, labels, fileMentions, pathImages, codeLineNumbers])
   return <div className={clsx(css.markdown, variant === 'compact' && css.compact)}
     data-markdown-variant={variant === 'compact' ? variant : undefined}>{children}</div>
 })

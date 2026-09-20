@@ -61,6 +61,19 @@ describe('MarkdownText', () => {
     expect(screen.getByRole('link', { name: 'https://deepseek.com' })).toBeTruthy()
   })
 
+  it('forwards opt-in line numbers to fenced code', () => {
+    const source = '```c\nint main(void) {\n  return 0;\n}\n```'
+    const view = render(<MarkdownText text={source} streaming codeLineNumbers />)
+
+    expect(view.container.querySelector('[data-line-numbers]')).not.toBeNull()
+    expect([...view.container.querySelectorAll('code > .line')].map(line => line.textContent))
+      .toEqual(['int main(void) {', '  return 0;', '}'])
+    expect(view.container.querySelector('pre')?.textContent).toBe('int main(void) {\n  return 0;\n}')
+
+    view.rerender(<MarkdownText text={source} streaming />)
+    expect(view.container.querySelector('[data-line-numbers]')).toBeNull()
+  })
+
   it('closes punctuation-terminated strong emphasis before adjacent CJK text', () => {
     const cases = [
       ['**注意：**内容', '注意：'],

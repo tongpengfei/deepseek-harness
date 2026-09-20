@@ -268,7 +268,8 @@ function CoursePage({ t, useStore, actions, sessions }: CodeLearningAppProps): R
                   {messages.map(message => (
                     <article key={message.key} className={message.role === 'tutor' ? css.tutorMessage : css.learnerMessage}>
                       <strong>{t(message.role === 'tutor' ? 'tutor.name' : 'tutor.you')}</strong>
-                      <MarkdownText text={message.text} streaming={message.streaming} labels={markdownLabels} />
+                      <MarkdownText text={message.text} streaming={message.streaming} labels={markdownLabels}
+                        codeLineNumbers />
                     </article>
                   ))}
                   {running && messages.every(message => !message.streaming) && (

@@ -178,6 +178,8 @@ export interface MarkdownFileMentions {
 export interface MarkdownRenderContext {
   /** Streaming arm: fences highlight incrementally as they grow; TeX (including ```math fences) stays literal until the settled pass. */
   readonly streaming: boolean
+  /** Show a numbered gutter on fenced code without changing copied source. */
+  readonly codeLineNumbers: boolean
   /** Localized fence copy-button labels. */
   readonly labels: MarkdownLabels
   /** Inside a blockquote's children: tables there always fill the quote's width. */
@@ -397,6 +399,7 @@ function renderCode(node: Md.Code, key: Key, context: MarkdownRenderContext): Re
       // has no content yet and took the empty-fence arm above, so `lang`
       // here is final: it can never re-resolve to a different grammar.
       streaming={context.streaming}
+      lineNumbers={context.codeLineNumbers}
       copyLabel={context.labels.code.copyLabel}
       copiedLabel={context.labels.code.copiedLabel}
     />

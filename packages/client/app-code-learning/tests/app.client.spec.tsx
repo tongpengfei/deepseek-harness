@@ -167,6 +167,8 @@ describe('CodeLearningApp', () => {
     expect(await screen.findByText('Try this:')).toBeTruthy()
     expect(screen.getByText((_content, element) =>
       element?.tagName === 'CODE' && element.textContent === 'printf("Hello");')).toBeTruthy()
+    expect(document.querySelector('[data-line-numbers]')).not.toBeNull()
+    expect(document.querySelectorAll('code > .line')).toHaveLength(1)
   })
 
   it('switches the outline before a Session exists and restores invalid navigation', () => {
