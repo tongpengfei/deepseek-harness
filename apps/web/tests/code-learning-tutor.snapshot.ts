@@ -57,6 +57,10 @@ describe('code-learning Tutor Session', () => {
     expect(answer).not.toContain('Complete a program')
     expect(answer).not.toContain('一个新知识点')
     expect(answer).not.toContain('这节课只')
+    expect(answer).not.toMatch(/^#{1,6}\s/m)
+    expect(answer).not.toMatch(/^\s*(?:[-*+] |\d+[.)] )/m)
+    expect(answer).not.toContain('**')
+    expect(answer).not.toMatch(/(?:为什么有用|语法|例子|小结|练习)[：:]/)
     expect(agentHandle.agent.session.requestHeader()?.tools).toBeUndefined()
   })
 

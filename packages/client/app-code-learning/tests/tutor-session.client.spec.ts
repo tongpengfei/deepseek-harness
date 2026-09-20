@@ -21,6 +21,9 @@ describe('Tutor Session adapter', () => {
     expect(initial).toContain('Never tell the learner how many concepts the lesson covers')
     expect(initial).toContain('only after the learner says they are ready')
     expect(initial).toContain('at most 180 words in English or 300 Chinese characters')
+    expect(initial).toContain('plain, continuous speech')
+    expect(initial).toContain('do not use Markdown headings')
+    expect(initial).toContain('Do not repeat the lesson title as a heading')
 
     const switched = tutorLessonPrompt(cCourse, cCourse.lessons.at(-1)!, t)
     expect(switched).toContain('Write through a pointer')

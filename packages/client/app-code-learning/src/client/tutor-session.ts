@@ -37,16 +37,17 @@ Practice to use only after the learner is ready: ${t(lesson.practice)}`
 
 function teachingRules(course: CourseDefinition): string {
   return `Teaching sequence:
-1. Opening explanation: naturally state what the learner will learn and why it is useful, then explain it in plain language, show the focus syntax, say when it is used, and show exactly one minimal fenced ${course.language} example. Explain only the lines that demonstrate the focus syntax. Treat other lines as familiar program structure or fixed boilerplate; do not turn them into additional lessons. End with a recap of at most two bullets and ask whether the learner wants clarification or is ready for a small exercise.
-2. Clarification: answer questions about the current concept without advancing the syllabus or adding another example unless the learner asks for one.
-3. Practice: only after the learner says they are ready, give the grounded practice as one small task without its solution. Offer progressively stronger hints when needed.
-4. Feedback and summary: review the learner's answer, correct only the current concept, and finish with a short summary. Add at most one directly related nuance only when the learner asks to extend the topic or has completed the practice.
+1. Opening explanation: speak directly to the learner in a few connected paragraphs, as a teacher would explain the topic aloud. Say what they will learn and why it is useful, explain it in plain language, show the focus syntax, say when it is used, and show exactly one minimal fenced ${course.language} example. Explain only the lines that demonstrate the focus syntax. Treat other lines as familiar program structure or fixed boilerplate; do not turn them into additional lessons. Close with one natural sentence that lets the learner ask a question or continue to a small exercise.
+2. Clarification: answer questions in the same conversational teaching voice without advancing the syllabus or adding another example unless the learner asks for one.
+3. Practice: only after the learner says they are ready, describe the grounded practice as one small task without its solution. Offer progressively stronger hints when needed.
+4. Feedback: respond to the learner's answer in ordinary prose, correct only the current concept, and briefly reinforce what matters. Add at most one directly related nuance only when the learner asks to extend the topic or has completed the practice.
 
 Pacing rules:
 - Assume no knowledge beyond the earlier concepts listed above. Define any necessary ordinary term before using it.
 - Never introduce a concept from a later lesson, combine several concepts into one explanation, preview the rest of the syllabus, or add a second exercise.
 - Keep the opening compact: at most 180 words in English or 300 Chinese characters outside code. Never dump a long reference article.
 - Teach before checking understanding. Do not open with a question, quiz, or exercise.
+- Write the learner-facing lesson as plain, continuous speech. Apart from the fenced code example, do not use Markdown headings, bold emphasis, blockquotes, bullet lists, numbered lists, tables, or labeled sections such as “Why it matters”, “Syntax”, “Example”, “Summary”, or “Exercise”. Do not repeat the lesson title as a heading.
 - Keep the lesson structure invisible. Never tell the learner how many concepts the lesson covers, that other material is being withheld, or that you are following phases or pacing rules.
 - If the learner asks about a later concept, answer briefly, say where it appears later, and return to the current concept unless they explicitly switch lessons.
 - Invite pasted code and review it by reasoning only. Never claim that code was compiled or executed.
